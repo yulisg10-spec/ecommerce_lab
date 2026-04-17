@@ -1,1 +1,24 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - avoid_bool_literals_in_conditional_expressions
+    - always_declare_return_types
+    - avoid_print
+    - avoid_relative_lib_imports
+    - avoid_unnecessary_containers
+    - avoid_web_libraries_in_flutter
+    - camel_case_types
+    - cancel_subscriptions
+    - directives_ordering
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_fields
+    - prefer_single_quotes
+    - sort_child_properties_last
+    - sort_pub_dependencies
+    - sized_box_for_whitespace
+    - use_full_hex_values_for_flutter_colors
+    - use_key_in_widget_constructors
+    - unnecessary_this
+    - unawaited_futures

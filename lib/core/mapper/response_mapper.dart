@@ -13,13 +13,13 @@ class ResponseMapper {
 
       return switch (response.statusCode) {
         >= 200 && < 300 => Success(fromJson(body)),
-        401 => Failure(const UnauthorizedError()),
-        404 => Failure(const NotFoundError()),
+        401 => const Failure(UnauthorizedError()),
+        404 => const Failure(NotFoundError()),
         >= 500 => Failure(ServerError(response.statusCode)),
         _ => Failure(ServerError(response.statusCode, 'Error inesperado')),
       };
     } on FormatException {
-      return Failure(const ParseError());
+      return const Failure(ParseError());
     }
   }
 }

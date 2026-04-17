@@ -5,13 +5,13 @@ import '../core.dart';
 class ErrorHandler {
   static ApiResult<T> handle<T>(Object error) {
     if (error is SocketException) {
-      return Failure(const NetworkError());
+      return const Failure(NetworkError());
     } else if (error is HttpException) {
-      return Failure(const NetworkError('Error HTTP inesperado'));
+      return const Failure(NetworkError('Error HTTP inesperado'));
     } else if (error is FormatException) {
-      return Failure(const ParseError());
+      return const Failure(ParseError());
     } else {
-      return Failure(UnknownError(error.toString()));
+      return const Failure(UnknownError('Error desconocido'));
     }
   }
 }
