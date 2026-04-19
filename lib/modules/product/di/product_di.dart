@@ -21,11 +21,8 @@ class ProductDI {
     getIt.registerLazySingleton<GetCategoriesUsecase>(
       () => GetCategoriesUsecase(repository: getIt()),
     );
-    getIt.registerLazySingleton<GetProductsByCategoryUsecase>(
-      () => GetProductsByCategoryUsecase(repository: getIt()),
-    );
-    getIt.registerLazySingleton<GetProductsUsecase>(
-      () => GetProductsUsecase(repository: getIt()),
+    getIt.registerLazySingleton<GetCategoryProductsUsecase>(
+      () => GetCategoryProductsUsecase(repository: getIt()),
     );
     getIt.registerLazySingleton<GetSearchProductsUsecase>(
       () => GetSearchProductsUsecase(repository: getIt()),

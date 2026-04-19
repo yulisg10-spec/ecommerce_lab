@@ -1,11 +1,11 @@
+import 'package:ecommerce_lab/config/config.dart';
+
 class ApiEndpoints {
-  static const String baseUrl = 'https://dummyjson.com';
-  static const String products = '$baseUrl/products';
-  static const String categories = '$baseUrl/products/category-list';
+  static const String categories = '${AppConfig.baseUrl}/rest/v1/categories';
+
+  static const String categoryProducts =
+      '${AppConfig.baseUrl}/rest/v1/rpc/category_products';
 
   static String searchProducts(String query) =>
-      '$baseUrl/products/search?q=$query';
-
-  static String productByCategory(String category) =>
-      '$baseUrl/products/category/$category';
+      '${AppConfig.baseUrl}/products/search?q=$query';
 }

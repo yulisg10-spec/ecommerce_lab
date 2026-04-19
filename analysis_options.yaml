@@ -4,6 +4,7 @@ linter:
   rules:
     - avoid_bool_literals_in_conditional_expressions
     - always_declare_return_types
+    - always_specify_types
     - avoid_print
     - avoid_relative_lib_imports
     - avoid_unnecessary_containers

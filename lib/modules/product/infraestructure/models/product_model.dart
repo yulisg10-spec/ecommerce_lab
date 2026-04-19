@@ -1,69 +1,57 @@
 import '../../product_module.dart';
 
 class ProductModel {
-  final int id;
-  final String title;
+  final String id;
+  final String name;
   final String description;
-  final CategoryModel category;
   final num price;
-  final num discountPercentage;
-  final num rating;
   final int stock;
-  final List<String> images;
+  final bool active;
+  final String imagePath;
 
   const ProductModel({
     required this.id,
-    required this.title,
+    required this.name,
     required this.description,
-    required this.category,
     required this.price,
-    required this.discountPercentage,
-    required this.rating,
     required this.stock,
-    required this.images,
+    required this.active,
+    required this.imagePath,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'] as int,
-      title: json['title'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
       description: json['description'] as String,
-      category: CategoryModel.fromJson(json['category'] as String),
       price: json['price'] as num,
-      discountPercentage: json['discountPercentage'] as num,
-      rating: json['rating'] as num,
       stock: json['stock'] as int,
-      images: List<String>.from(
-        (json['images'] as List<dynamic>).cast<String>(),
-      ),
+      active: json['active'] as bool,
+      imagePath: json['imagePath'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
-      'title': title,
+      'name': name,
       'description': description,
-      'category': category,
       'price': price,
-      'discountPercentage': discountPercentage,
-      'rating': rating,
       'stock': stock,
-      'images': images,
+      'active': active,
+      'imagePath': imagePath,
     };
   }
 
   ProductEntity toEntity() {
     return ProductEntity(
       id: id,
-      title: title,
+      name: name,
       description: description,
-      category: category.toEntity(),
       price: price,
-      discountPercentage: discountPercentage,
-      rating: rating,
+      active: active,
       stock: stock,
-      images: images,
+      imagePath: imagePath,
     );
   }
 }

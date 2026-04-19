@@ -9,8 +9,8 @@ sealed class ApiResult<T> {
     required R Function(AppError error) failure,
   }) {
     return switch (this) {
-      Success(:final data) => success(data),
-      Failure(:final error) => failure(error),
+      Success<T>(:final T data) => success(data),
+      Failure<T>(:final AppError error) => failure(error),
     };
   }
 }

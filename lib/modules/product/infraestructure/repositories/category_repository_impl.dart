@@ -12,14 +12,34 @@ class CategoryRepositoryImpl implements CategoryRepository {
         .getCategories();
 
     return result.when(
-      success: (categoriesModel) {
-        final categoriesEntity = categoriesModel
-            .map((category) => category.toEntity())
+      success: (List<CategoryModel> categoriesModel) {
+        final List<CategoryEntity> categoriesEntity = categoriesModel
+            .map((CategoryModel category) => category.toEntity())
             .toList();
-        return Success(categoriesEntity);
+        return Success<List<CategoryEntity>>(categoriesEntity);
       },
-      failure: (error) {
-        return Failure(error);
+      failure: (AppError error) {
+        return Failure<List<CategoryEntity>>(error);
+      },
+    );
+  }
+
+  @override
+  Future<ApiResult<CategoryDetailEntity>> getCategoryWithProducts(
+    String categoryId,
+  ) async {
+    final ApiResult<CategoryDetailModel> result = await datasource
+        .getCategoryWithProducts(categoryId);
+
+    return result.when(
+      success: (CategoryDetailModel categoryDetailModel) {
+        final CategoryDetailEntity categoryDetailEntity = categoryDetailModel
+            .toEntity();
+
+        return Success<CategoryDetailEntity>(categoryDetailEntity);
+      },
+      failure: (AppError error) {
+        return Failure<CategoryDetailEntity>(error);
       },
     );
   }
