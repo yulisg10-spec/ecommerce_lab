@@ -1,5 +1,5 @@
 import 'package:ecommerce_lab/core/api/api_client.dart';
-import 'package:ecommerce_lab/modules/product/di/product_di.dart';
+import 'package:ecommerce_lab/modules/products/di/product_di.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,0 +1,12 @@
+export 'di/product_di.dart';
+export 'domain/datasources/datasources.dart';
+export 'domain/entities/entities.dart';
+export 'domain/repositories/repositories.dart';
+export 'domain/usecases/usecases.dart';
+export 'infraestructure/datasources/datasources.dart';
+export 'infraestructure/models/models.dart';
+export 'infraestructure/repositories/repositories.dart';
+export 'ui/providers/providers.dart';
+export 'ui/router/products_routes.dart';
+export 'ui/screens/screens.dart';
+export 'ui/widgets/widgets.dart';

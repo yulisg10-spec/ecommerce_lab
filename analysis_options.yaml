@@ -12,13 +12,15 @@ linter:
     - camel_case_types
     - cancel_subscriptions
     - directives_ordering
+    - file_names
+    - matching_super_parameters
     - prefer_const_constructors
     - prefer_const_literals_to_create_immutables
     - prefer_final_fields
     - prefer_single_quotes
     - sort_child_properties_last
-    - sort_pub_dependencies
     - sized_box_for_whitespace
+    - use_named_constants
     - use_full_hex_values_for_flutter_colors
     - use_key_in_widget_constructors
     - unnecessary_this

@@ -2,6 +2,8 @@ export 'api/api_client.dart';
 export 'api/api_endpoints.dart';
 export 'api/api_result.dart';
 export 'api/mapper/response_mapper.dart';
+export 'config/app_config.dart';
 export 'di/dependency_injection.dart';
 export 'errors/app_error.dart';
 export 'errors/error_handler.dart';
+export 'router/app_router.dart';
