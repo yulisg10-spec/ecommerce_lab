@@ -23,11 +23,7 @@ class ProductsNotifier extends AsyncNotifier<List<ProductEntity>> {
   final String categoryId;
 
   @override
-  FutureOr<List<ProductEntity>> build() {
-    return _loadProducts(categoryId);
-  }
-
-  FutureOr<List<ProductEntity>> _loadProducts(String categoryId) async {
+  FutureOr<List<ProductEntity>> build() async {
     final GetProductsByCategoryUsecase usecase = ref.read(
       getProductsByCategoryUsecaseProvider,
     );

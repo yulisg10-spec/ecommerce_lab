@@ -35,35 +35,46 @@ class ProductsScreen extends ConsumerWidget {
                       SliverToBoxAdapter(
                         child: SizedBox(
                           height: 100,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.only(
-                              top: 24.0,
-                              left: 16.0,
-                              right: 16.0,
-                            ),
-                            itemCount: catalog.categories.length,
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                                  return const SizedBox(width: 24);
-                                },
-                            itemBuilder: (BuildContext context, int index) {
-                              final CategoryEntity category =
-                                  catalog.categories[index];
+                          child: LayoutBuilder(
+                            builder:
+                                (
+                                  BuildContext context,
+                                  BoxConstraints constraints,
+                                ) {
+                                  final double itemWidth =
+                                      constraints.maxWidth / 12;
+                                  return ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.only(
+                                      top: 24.0,
+                                      left: 16.0,
+                                      right: 16.0,
+                                    ),
+                                    itemCount: catalog.categories.length,
+                                    separatorBuilder:
+                                        (BuildContext context, int index) {
+                                          return SizedBox(width: itemWidth);
+                                        },
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                          final CategoryEntity category =
+                                              catalog.categories[index];
 
-                              return GestureDetector(
-                                onTap: () {
-                                  ref
-                                      .read(catalogProvider.notifier)
-                                      .selectCategory(category.id);
+                                          return GestureDetector(
+                                            onTap: () => ref
+                                                .read(catalogProvider.notifier)
+                                                .selectCategory(category.id),
+                                            child: CategoryIconWidget(
+                                              name: category.name,
+                                              iconPath: category.iconPath,
+                                              isSelected:
+                                                  catalog.selectedId ==
+                                                  category.id,
+                                            ),
+                                          );
+                                        },
+                                  );
                                 },
-                                child: CategoryIconWidget(
-                                  name: category.name,
-                                  iconPath: category.iconPath,
-                                  isSelected: catalog.selectedId == category.id,
-                                ),
-                              );
-                            },
                           ),
                         ),
                       ),

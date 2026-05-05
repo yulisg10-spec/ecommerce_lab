@@ -28,7 +28,7 @@ class ProductDatasourceImpl implements ProductDatasource {
   Future<ApiResult<List<ProductModel>>> searchProducts(String query) {
     return apiClient.post(
       url: ApiEndpoints.searchProducts,
-      body: <String, dynamic>{'name': query},
+      body: <String, dynamic>{'search': query},
       fromJson: (Map<String, dynamic> json) {
         final List<Map<String, dynamic>> jsonList =
             (json['data'] as List<dynamic>).cast<Map<String, dynamic>>();

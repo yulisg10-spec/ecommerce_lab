@@ -7,6 +7,18 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/core.dart';
 import '../../product_module.dart';
 
+final NotifierProvider<SearchQueryNotifier, String> searchQueryProvider =
+    NotifierProvider.autoDispose<SearchQueryNotifier, String>(
+      SearchQueryNotifier.new,
+    );
+
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void setQuery(String value) => state = value;
+}
+
 final Provider<SearchProductsUsecase> searchProductsUsecaseProvider =
     Provider<SearchProductsUsecase>(
       (Ref ref) => GetIt.instance<SearchProductsUsecase>(),
@@ -27,11 +39,7 @@ class SearchProductsNotifier extends AsyncNotifier<List<ProductEntity>> {
   final String query;
 
   @override
-  FutureOr<List<ProductEntity>> build() {
-    return _searchProducts(query);
-  }
-
-  FutureOr<List<ProductEntity>> _searchProducts(String query) async {
+  FutureOr<List<ProductEntity>> build() async {
     final SearchProductsUsecase usecase = ref.read(
       searchProductsUsecaseProvider,
     );

@@ -4,18 +4,24 @@ import 'package:go_router/go_router.dart';
 class HeaderSearchFieldWidget extends StatelessWidget {
   const HeaderSearchFieldWidget({
     super.key,
-    this.onTap,
     this.autofocus = true,
     this.readOnly = false,
     this.canRequestFocus = true,
     this.showBack = false,
+    this.controller,
+    this.onTap,
+    this.onFieldSubmitted,
+    this.onSuffixIconPressed,
   });
 
-  final VoidCallback? onTap;
   final bool autofocus;
   final bool readOnly;
   final bool canRequestFocus;
   final bool showBack;
+  final TextEditingController? controller;
+  final VoidCallback? onTap;
+  final ValueChanged<String>? onFieldSubmitted;
+  final VoidCallback? onSuffixIconPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -37,21 +43,25 @@ class HeaderSearchFieldWidget extends StatelessWidget {
           Expanded(
             child: TextFormField(
               onTap: onTap,
+              onFieldSubmitted: onFieldSubmitted,
+              controller: controller,
               autofocus: autofocus,
               readOnly: readOnly,
               canRequestFocus: canRequestFocus,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Buscar...',
-                prefixIcon: Icon(Icons.shopping_bag_outlined),
-                suffixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.shopping_bag_outlined),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: onSuffixIconPressed,
+                ),
                 filled: true,
                 fillColor: Colors.white,
-                enabledBorder: OutlineInputBorder(
+                enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                   borderSide: BorderSide(color: Colors.white, width: 20),
                 ),
-
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                   borderSide: BorderSide(color: Colors.white, width: 20),
                 ),

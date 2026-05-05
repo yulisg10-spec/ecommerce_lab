@@ -49,11 +49,21 @@ class CardProductWidget extends StatelessWidget {
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           overflow: TextOverflow.ellipsis,
         ),
+        const Row(
+          children: <Widget>[
+            Icon(Icons.star, color: Colors.orange, size: 16.0),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.0),
+              child: Text('5.0'),
+            ),
+            Text('| 0 vendidos'),
+          ],
+        ),
         const SizedBox(height: 4.0),
         Text(
-          price,
+          '\$ $price',
           maxLines: 1,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           overflow: TextOverflow.ellipsis,
         ),
       ],
