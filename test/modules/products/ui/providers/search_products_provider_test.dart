@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../helpers/fake_catalog_data.dart';
 import '../../domain/mocks/mock_search_products_usecase.dart';
+import '../helpers/fake_catalog_data.dart';
 
 void main() {
   late MockSearchProductsUsecase mockSearchProducts;

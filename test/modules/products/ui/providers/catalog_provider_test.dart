@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../helpers/fake_catalog_data.dart';
 import '../../domain/mocks/mock_get_categories_usecase.dart';
 import '../../domain/mocks/mock_get_products_by_category_usecase.dart';
+import '../helpers/fake_catalog_data.dart';
 
 void main() {
   late MockGetCategoriesUsecase mockGetCategories;
