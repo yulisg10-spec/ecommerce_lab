@@ -32,6 +32,7 @@ final AsyncNotifierProviderFamily<
 searchProductsProvider = AsyncNotifierProvider.autoDispose
     .family<SearchProductsNotifier, List<ProductEntity>, String>(
       SearchProductsNotifier.new,
+      retry: (int retryCount, Object error) => null,
     );
 
 class SearchProductsNotifier extends AsyncNotifier<List<ProductEntity>> {

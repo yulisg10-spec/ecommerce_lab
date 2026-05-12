@@ -24,12 +24,17 @@ class CategoryIconWidget extends StatelessWidget {
               ? Colors.indigo[400]
               : Colors.indigo.withAlpha(80),
           radius: 24,
-          child: SvgPicture.network(
-            ApiEndpoints.buildCategoryIconUrl(iconPath),
-            width: 24.0,
-            height: 24.0,
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          ),
+          child: iconPath.isEmpty
+              ? const Icon(Icons.category_rounded)
+              : SvgPicture.network(
+                  ApiEndpoints.buildCategoryIconUrl(iconPath),
+                  width: 24.0,
+                  height: 24.0,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ),
         ),
         const SizedBox(height: 8.0),
         Text(

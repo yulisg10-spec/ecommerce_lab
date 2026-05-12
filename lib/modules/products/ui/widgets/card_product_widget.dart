@@ -28,18 +28,21 @@ class CardProductWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.0),
               color: Colors.indigo.withAlpha(24),
             ),
-            child: CachedNetworkImage(
-              imageUrl: ApiEndpoints.buildProductImageUrl(imagePath),
-              width: 150,
-              height: 150,
-              fit: BoxFit.contain,
-              placeholder: (BuildContext context, String url) {
-                return const CircularProgressIndicator();
-              },
-              errorWidget: (BuildContext context, String url, Object error) {
-                return const Icon(Icons.error);
-              },
-            ),
+            child: imagePath.isEmpty
+                ? const Icon(Icons.image_not_supported_outlined)
+                : CachedNetworkImage(
+                    imageUrl: ApiEndpoints.buildProductImageUrl(imagePath),
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.contain,
+                    placeholder: (BuildContext context, String url) {
+                      return const CircularProgressIndicator();
+                    },
+                    errorWidget:
+                        (BuildContext context, String url, Object error) {
+                          return const Icon(Icons.error);
+                        },
+                  ),
           ),
         ),
         const SizedBox(height: 8.0),

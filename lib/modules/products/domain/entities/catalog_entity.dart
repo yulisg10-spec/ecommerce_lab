@@ -10,16 +10,4 @@ class CatalogEntity {
     required this.products,
     required this.selectedId,
   });
-
-  CatalogEntity copyWith({
-    List<CategoryEntity>? categories,
-    List<ProductEntity>? products,
-    String? selectedId,
-  }) {
-    return CatalogEntity(
-      categories: categories ?? this.categories,
-      products: products ?? this.products,
-      selectedId: selectedId ?? this.selectedId,
-    );
-  }
 }
