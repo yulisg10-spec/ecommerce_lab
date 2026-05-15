@@ -32,7 +32,7 @@ jobs:
     # perfectamente para análisis y tests.
 
     steps:
-      - name: Checkout código
+      - name: Checkout Ecommerce_lab
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -64,17 +64,17 @@ jobs:
           # Habilita el caché para acelerar ejecuciones futuras reutilizando dependencias
           # y evitando descargas repetitivas del SDK de Flutter.
 
-      - name: Instalar dependencias
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Analizar código
+      - name: Analyze Code
         run: flutter analyze
         # Por qué flutter analyze antes de los tests:
         # Es más rápido que los tests y detecta errores de
         # compilación, tipos incorrectos, imports no usados, etc.
         # Si esto falla, los tests ni siquiera correrían bien.
 
-      - name: Ejecutar tests con coverage
+      - name: Run Flutter Test Coverage
         run: flutter test --coverage
         # --coverage genera coverage/lcov.info que Sonar
         # necesita para mostrar métricas de cobertura.
@@ -108,7 +108,7 @@ jobs:
     # "buildear sin importar el estado del código".
 
     steps:
-      - name: Checkout código
+      - name: Checkout Ecommerce_lab
         uses: actions/checkout@v4
 
       - name: Setup Java
@@ -123,10 +123,10 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Instalar dependencias
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Decodificar Keystore
+      - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
         # Por qué base64: los secrets de GitHub son texto plano.
@@ -136,7 +136,7 @@ jobs:
         # Aquí simplemente revertimos ese proceso para obtener
         # el archivo binario original que Gradle necesita.
 
-      - name: Crear key.properties
+      - name: Create key.properties
         run: |
           cat > android/key.properties <<EOF
           storePassword=${{ secrets.KEYSTORE_STORE_PASSWORD }}
@@ -152,11 +152,11 @@ jobs:
         # que tenerlo en el repo porque las credenciales nunca
         # tocan Git.
 
-      - name: Build APK release
+      - name: Build APK Release
         run: flutter build apk --release
         # Genera: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Distribuir a Firebase App Distribution
+      - name: Publish Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
