@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "348191104527",
+    "project_id": "ecommerce-lab-22082",
+    "storage_bucket": "ecommerce-lab-22082.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348191104527:android:657853b79fdaef126dcd7a",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce_lab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL_9TiWLMfyxc149VUjqU9k7jJD5xvuvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

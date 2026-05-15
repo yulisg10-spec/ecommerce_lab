@@ -46,3 +46,9 @@ app.*.map.json
 
 # Credentials
 .env.json
+
+# Keystore — nunca subir a Git
+android/app/upload-keystore.jks
+android/key.properties
+*.jks
+*.keystore

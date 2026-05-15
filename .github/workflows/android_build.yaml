@@ -1,0 +1,178 @@
+name: Android CI/CD
+
+# ─────────────────────────────────────────────────────────────
+# TRIGGERS — cuándo se ejecuta este workflow
+# ─────────────────────────────────────────────────────────────
+# Por qué develop y no main: todo nuestro desarrollo activo
+# está en develop. Main se usará cuando el pipeline esté
+# validado y hagamos el primer merge formal.
+# workflow_dispatch permite ejecutarlo manualmente desde la
+# UI de GitHub sin necesidad de hacer un push — muy útil
+# para probar el pipeline por primera vez.
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: QUALITY
+  # Responsabilidad: verificar que el código cumple estándares
+  # antes de intentar construir cualquier cosa.
+  # Por qué primero: no tiene sentido gastar tiempo buildeando
+  # una APK si el código tiene errores o tests fallidos.
+  # ─────────────────────────────────────────────────────────────
+  quality:
+    name: Tests & SonarCloud
+    runs-on: ubuntu-latest
+    # Por qué ubuntu: es el runner más rápido y económico
+    # en minutos de GitHub Actions. Flutter en Linux funciona
+    # perfectamente para análisis y tests.
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Por qué fetch-depth: 0 (full history):
+          # SonarCloud necesita el historial completo de commits
+          # para calcular métricas como "new code" vs "overall code"
+          # y hacer análisis incrementales en PRs.
+          # Con fetch-depth: 1 (shallow clone, el default)
+          # Sonar no puede distinguir qué es código nuevo.
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          # Por qué Java: el toolchain de Android (Gradle, D8,
+          # el compilador de Kotlin) corre sobre JVM.
+          # Sin Java, flutter build apk falla.
+          # Temurin es la distribución OpenJDK de Eclipse,
+          # gratuita y la más usada en CI/CD.
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+          channel: stable
+          cache: true
+          # Por qué flutter-version-file en lugar de hardcodear
+          # la versión: lee la versión directamente de tu pubspec.yaml.
+          # Así si actualizas Flutter en tu máquina y actualizas
+          # pubspec.yaml, el pipeline se actualiza automáticamente
+          # sin tocar el workflow.
+          # cache: true guarda el SDK de Flutter entre ejecuciones
+          # para no descargarlo cada vez — ahorra ~2 minutos por run.
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Analizar código
+        run: flutter analyze
+        # Por qué flutter analyze antes de los tests:
+        # Es más rápido que los tests y detecta errores de
+        # compilación, tipos incorrectos, imports no usados, etc.
+        # Si esto falla, los tests ni siquiera correrían bien.
+
+      - name: Ejecutar tests con coverage
+        run: flutter test --coverage
+        # --coverage genera coverage/lcov.info que Sonar
+        # necesita para mostrar métricas de cobertura.
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Por qué GITHUB_TOKEN además de SONAR_TOKEN:
+          # SONAR_TOKEN autentica con SonarCloud.
+          # GITHUB_TOKEN (provisto automáticamente por GitHub,
+          # no necesitas crearlo) permite que Sonar publique
+          # los resultados como comentarios en Pull Requests
+          # y actualice el status check del commit.
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: ANDROID
+  # Responsabilidad: compilar, firmar y distribuir la APK.
+  # Por qué separado del job quality: si en el futuro agregas
+  # iOS, ambos pueden correr en paralelo después de quality,
+  # reduciendo el tiempo total del pipeline.
+  # ─────────────────────────────────────────────────────────────
+  android:
+    name: Build & Distribute Android
+    runs-on: ubuntu-latest
+    needs: quality
+    # Por qué needs: quality:
+    # Garantiza que este job solo corre si quality pasó.
+    # Es la diferencia entre CI/CD serio y simplemente
+    # "buildear sin importar el estado del código".
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+          channel: stable
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Decodificar Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+        # Por qué base64: los secrets de GitHub son texto plano.
+        # El keystore es un archivo binario que no puede guardarse
+        # directamente como texto. Al codificarlo en base64 en el
+        # Paso 1, lo convertiste en texto seguro para guardar.
+        # Aquí simplemente revertimos ese proceso para obtener
+        # el archivo binario original que Gradle necesita.
+
+      - name: Crear key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_STORE_PASSWORD }}
+          keyPassword=${{ secrets.KEYSTORE_KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEYSTORE_KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+        # Por qué recrear el archivo en cada run:
+        # key.properties está en .gitignore — nunca existe
+        # en el repositorio. El runner de GitHub es una máquina
+        # limpia en cada ejecución, así que hay que crearlo
+        # dinámicamente desde los secrets. Esto es más seguro
+        # que tenerlo en el repo porque las credenciales nunca
+        # tocan Git.
+
+      - name: Build APK release
+        run: flutter build apk --release
+        # Genera: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Distribuir a Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: internal-testers
+          file: build/app/outputs/flutter-apk/app-release.apk
+          releaseNotes: "Build automático — ${{ github.ref_name }} — commit ${{ github.sha }}"
+          # Por qué serviceCredentialsFileContent en lugar de token:
+          # Firebase deprecó el token CLI (firebase login:ci).
+          # La Service Account es el método oficial y más seguro
+          # porque tiene permisos específicos y auditables,
+          # a diferencia del token que tenía acceso amplio.
+          # releaseNotes incluye la rama y el commit SHA para
+          # que los testers sepan exactamente qué están probando.

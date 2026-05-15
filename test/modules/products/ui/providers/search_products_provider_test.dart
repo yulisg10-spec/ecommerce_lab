@@ -87,14 +87,14 @@ void main() {
         addTearDown(container.dispose);
 
         final ProviderSubscription<AsyncValue<List<ProductEntity>>>
-        subscriptionA = container.listen(
+            subscriptionA = container.listen(
           searchProductsProvider('Camisa'),
-          (_, _) {},
+          (_, __) {},
         );
         final ProviderSubscription<AsyncValue<List<ProductEntity>>>
-        subscriptionB = container.listen(
+            subscriptionB = container.listen(
           searchProductsProvider('Pantalón'),
-          (_, _) {},
+          (_, __) {},
         );
 
         await container.read(searchProductsProvider('Camisa').future);
