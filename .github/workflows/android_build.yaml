@@ -57,16 +57,12 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version-file: pubspec.yaml
           channel: stable
           cache: true
-          # Por qué flutter-version-file en lugar de hardcodear
-          # la versión: lee la versión directamente de tu pubspec.yaml.
-          # Así si actualizas Flutter en tu máquina y actualizas
-          # pubspec.yaml, el pipeline se actualiza automáticamente
-          # sin tocar el workflow.
-          # cache: true guarda el SDK de Flutter entre ejecuciones
-          # para no descargarlo cada vez — ahorra ~2 minutos por run.
+          # Configura el entorno de Flutter en el pipeline de CI/CD utilizando la acción oficial.
+          # Usa el canal "stable" para asegurar una versión probada y estable del SDK.
+          # Habilita el caché para acelerar ejecuciones futuras reutilizando dependencias
+          # y evitando descargas repetitivas del SDK de Flutter.
 
       - name: Instalar dependencias
         run: flutter pub get
