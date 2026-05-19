@@ -16,7 +16,7 @@ void main() {
   });
 
   ProviderContainer makeContainer() {
-    return ProviderContainer(
+    return ProviderContainer.test(
       overrides: <Override>[
         searchProductsUsecaseProvider.overrideWithValue(mockSearchProducts),
       ],
@@ -34,7 +34,6 @@ void main() {
         ).thenAnswer((_) async => Success<List<ProductEntity>>(products));
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         final List<ProductEntity> result = await container.read(
           searchProductsProvider('Camisa').future,
@@ -49,7 +48,6 @@ void main() {
         );
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         final List<ProductEntity> result = await container.read(
           searchProductsProvider('xyz').future,
@@ -65,7 +63,6 @@ void main() {
         );
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         await expectLater(
           container.read(searchProductsProvider('Camisa').future),
@@ -84,7 +81,6 @@ void main() {
         );
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         final ProviderSubscription<AsyncValue<List<ProductEntity>>>
             subscriptionA = container.listen(

@@ -19,7 +19,7 @@ void main() {
   });
 
   ProviderContainer makeContainer() {
-    return ProviderContainer(
+    return ProviderContainer.test(
       overrides: <Override>[
         getCategoriesUsecaseProvider.overrideWithValue(mockGetCategories),
         getProductsByCategoryUsecaseProvider.overrideWithValue(
@@ -30,7 +30,7 @@ void main() {
   }
 
   group('CatalogNotifier', () {
-    group('build', () {
+    group('Build', () {
       test('Carga categorías y productos de la primera categoría', () async {
         final List<CategoryEntity> categories =
             FakeCatalogData.fakeCategoriesEntity();
@@ -46,7 +46,6 @@ void main() {
         ).thenAnswer((_) async => Success<List<ProductEntity>>(products));
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         final CatalogEntity catalog = await container.read(
           catalogProvider.future,
@@ -63,7 +62,6 @@ void main() {
         );
 
         final ProviderContainer container = makeContainer();
-        addTearDown(container.dispose);
 
         final CatalogEntity catalog = await container.read(
           catalogProvider.future,
@@ -84,7 +82,6 @@ void main() {
           );
 
           final ProviderContainer container = makeContainer();
-          addTearDown(container.dispose);
 
           await expectLater(
             container.read(catalogProvider.future),
@@ -114,7 +111,6 @@ void main() {
           );
 
           final ProviderContainer container = makeContainer();
-          addTearDown(container.dispose);
 
           await expectLater(
             container.read(catalogProvider.future),
@@ -153,7 +149,6 @@ void main() {
           ).thenAnswer((_) async => Success<List<ProductEntity>>(productsB));
 
           final ProviderContainer container = makeContainer();
-          addTearDown(container.dispose);
 
           await container.read(catalogProvider.future);
 
@@ -168,19 +163,30 @@ void main() {
       );
 
       test(
-        'No hace nada si no hay categorías y no debe lanzar excepción',
+        'Retorna sin lanzar excepción cuando categorías está en estado de error',
         () async {
-          when(() => mockGetCategories.repository.getCategories()).thenAnswer(
+          when(() => mockGetCategories.call()).thenAnswer(
             (_) async =>
                 const Failure<List<CategoryEntity>>(NetworkError('Error')),
           );
 
           final ProviderContainer container = makeContainer();
-          addTearDown(container.dispose);
+
+          //Lleva al estado de error cuando no tiene categorías,
+          //para probar el guard `if (catalog == null) return`
+          await expectLater(
+            container.read(catalogProvider.future),
+            throwsA(anything),
+          );
 
           await expectLater(
             container.read(catalogProvider.notifier).selectCategory('cat-1'),
             completes,
+          );
+
+          expect(
+            container.read(catalogProvider),
+            isA<AsyncError<CatalogEntity>>(),
           );
         },
       );
