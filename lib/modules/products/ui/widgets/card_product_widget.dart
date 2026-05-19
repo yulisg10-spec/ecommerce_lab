@@ -1,7 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/core.dart';
+import '../../product_module.dart';
 
 class CardProductWidget extends StatelessWidget {
   const CardProductWidget({
@@ -30,19 +29,7 @@ class CardProductWidget extends StatelessWidget {
             ),
             child: imagePath.isEmpty
                 ? const Icon(Icons.image_not_supported_outlined)
-                : CachedNetworkImage(
-                    imageUrl: ApiEndpoints.buildProductImageUrl(imagePath),
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.contain,
-                    placeholder: (BuildContext context, String url) {
-                      return const CircularProgressIndicator();
-                    },
-                    errorWidget:
-                        (BuildContext context, String url, Object error) {
-                          return const Icon(Icons.error);
-                        },
-                  ),
+                : ProductImageWidget(imagePath: imagePath),
           ),
         ),
         const SizedBox(height: 8.0),

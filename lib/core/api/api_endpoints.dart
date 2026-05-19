@@ -15,7 +15,7 @@ class ApiEndpoints {
   static const String productsByCategory =
       '${AppConfig.baseUrl}/rest/v1/rpc/products-by-category';
 
-  static String searchProducts =
+  static const String searchProducts =
       '${AppConfig.baseUrl}/rest/v1/rpc/search-products';
 
   static String buildCategoryIconUrl(String path) =>

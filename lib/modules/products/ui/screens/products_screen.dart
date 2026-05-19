@@ -20,7 +20,7 @@ class ProductsScreen extends ConsumerWidget {
               readOnly: true,
               canRequestFocus: true,
               onTap: () {
-                context.push('/search-products');
+                context.push(ProductsRoutes.searchProducts);
               },
             ),
             Expanded(
@@ -36,45 +36,42 @@ class ProductsScreen extends ConsumerWidget {
                         child: SizedBox(
                           height: 100,
                           child: LayoutBuilder(
-                            builder:
-                                (
-                                  BuildContext context,
-                                  BoxConstraints constraints,
-                                ) {
-                                  final double itemWidth =
-                                      constraints.maxWidth / 12;
-                                  return ListView.separated(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: const EdgeInsets.only(
-                                      top: 24.0,
-                                      left: 16.0,
-                                      right: 16.0,
-                                    ),
-                                    itemCount: catalog.categories.length,
-                                    separatorBuilder:
-                                        (BuildContext context, int index) {
-                                          return SizedBox(width: itemWidth);
-                                        },
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                          final CategoryEntity category =
-                                              catalog.categories[index];
+                            builder: (
+                              BuildContext context,
+                              BoxConstraints constraints,
+                            ) {
+                              final double itemWidth =
+                                  constraints.maxWidth / 12;
+                              return ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.only(
+                                  top: 24.0,
+                                  left: 16.0,
+                                  right: 16.0,
+                                ),
+                                itemCount: catalog.categories.length,
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return SizedBox(width: itemWidth);
+                                },
+                                itemBuilder: (BuildContext context, int index) {
+                                  final CategoryEntity category =
+                                      catalog.categories[index];
 
-                                          return GestureDetector(
-                                            onTap: () => ref
-                                                .read(catalogProvider.notifier)
-                                                .selectCategory(category.id),
-                                            child: CategoryIconWidget(
-                                              name: category.name,
-                                              iconPath: category.iconPath,
-                                              isSelected:
-                                                  catalog.selectedId ==
-                                                  category.id,
-                                            ),
-                                          );
-                                        },
+                                  return GestureDetector(
+                                    onTap: () => ref
+                                        .read(catalogProvider.notifier)
+                                        .selectCategory(category.id),
+                                    child: CategoryIconWidget(
+                                      name: category.name,
+                                      iconPath: category.iconPath,
+                                      isSelected:
+                                          catalog.selectedId == category.id,
+                                    ),
                                   );
                                 },
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -86,11 +83,11 @@ class ProductsScreen extends ConsumerWidget {
                         sliver: SliverGrid(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 16,
-                                crossAxisSpacing: 16,
-                                childAspectRatio: 0.9,
-                              ),
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.9,
+                          ),
                           delegate: SliverChildBuilderDelegate(
                             childCount: catalog.products.length,
                             (BuildContext context, int index) {

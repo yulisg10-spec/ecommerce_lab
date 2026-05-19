@@ -153,8 +153,13 @@ jobs:
         # tocan Git.
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: >
+          flutter build apk --release
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          --dart-define=SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
         # Genera: build/app/outputs/flutter-apk/app-release.apk
+        # --dart-define inyecta las variables en compile-time (String.fromEnvironment).
+        # Sin esto, AppConfig.validate() lanza StateError al iniciar la app.
 
       - name: Publish Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1

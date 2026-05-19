@@ -9,11 +9,16 @@ final Provider<GetCategoriesUsecase> getCategoriesUsecaseProvider =
       (Ref ref) => GetIt.instance<GetCategoriesUsecase>(),
     );
 
-final FutureProvider<ApiResult<List<CategoryEntity>>> categoryProvider =
-    FutureProvider<ApiResult<List<CategoryEntity>>>((Ref ref) async {
+final FutureProvider<List<CategoryEntity>> categoryProvider =
+    FutureProvider.autoDispose<List<CategoryEntity>>((Ref ref) async {
       final GetCategoriesUsecase usecase = ref.read(
         getCategoriesUsecaseProvider,
       );
 
-      return usecase.call();
+      final ApiResult<List<CategoryEntity>> result = await usecase.call();
+
+      return result.when(
+        success: (List<CategoryEntity> categories) => categories,
+        failure: (AppError error) => throw error.message,
+      );
     });
