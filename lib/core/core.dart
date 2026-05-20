@@ -7,3 +7,4 @@ export 'di/dependency_injection.dart';
 export 'errors/app_error.dart';
 export 'errors/error_handler.dart';
 export 'router/app_router.dart';
+export 'theme/theme.dart';
