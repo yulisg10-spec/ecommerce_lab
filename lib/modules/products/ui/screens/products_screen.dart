@@ -1,3 +1,4 @@
+import 'package:ecommerce_lab/modules/cart/cart_module.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +13,7 @@ class ProductsScreen extends ConsumerWidget {
     final AsyncValue<CatalogEntity> catalogState = ref.watch(catalogProvider);
 
     return Scaffold(
-      backgroundColor: Colors.indigo[50],
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -98,6 +99,9 @@ class ProductsScreen extends ConsumerWidget {
                                 name: product.name,
                                 price: product.price.toString(),
                                 imagePath: product.imagePath,
+                                onTap: () => context.push(
+                                    CartRoutes.productDetail,
+                                    extra: product),
                               );
                             },
                           ),

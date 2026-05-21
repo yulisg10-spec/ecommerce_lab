@@ -49,7 +49,7 @@ class HeaderSearchFieldWidget extends StatelessWidget {
               readOnly: readOnly,
               canRequestFocus: canRequestFocus,
               decoration: InputDecoration(
-                hintText: 'Buscar...',
+                hintText: 'Buscar productos',
                 prefixIcon: const Icon(Icons.shopping_bag_outlined),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
@@ -57,13 +57,13 @@ class HeaderSearchFieldWidget extends StatelessWidget {
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                enabledBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                  borderSide: BorderSide(color: Colors.white, width: 20),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                  borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
                 ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                  borderSide: BorderSide(color: Colors.white, width: 20),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                  borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
                 ),
               ),
             ),

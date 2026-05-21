@@ -8,55 +8,64 @@ class CardProductWidget extends StatelessWidget {
     required this.name,
     required this.price,
     required this.imagePath,
+    this.onTap,
   });
 
   final String name;
   final String price;
   final String imagePath;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
-              color: Colors.indigo.withAlpha(24),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                color: Colors.indigo.withAlpha(24),
+              ),
+              child: imagePath.isEmpty
+                  ? const Icon(Icons.image_not_supported_outlined)
+                  : ProductImageWidget(
+                      imagePath: imagePath,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
             ),
-            child: imagePath.isEmpty
-                ? const Icon(Icons.image_not_supported_outlined)
-                : ProductImageWidget(imagePath: imagePath),
           ),
-        ),
-        const SizedBox(height: 8.0),
-        Text(
-          name,
-          maxLines: 1,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-        ),
-        const Row(
-          children: <Widget>[
-            Icon(Icons.star, color: Colors.orange, size: 16.0),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.0),
-              child: Text('5.0'),
-            ),
-            Text('| 0 vendidos'),
-          ],
-        ),
-        const SizedBox(height: 4.0),
-        Text(
-          '\$ $price',
-          maxLines: 1,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+          const SizedBox(height: 8.0),
+          Text(
+            name,
+            maxLines: 1,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Row(
+            children: <Widget>[
+              Icon(Icons.star, color: Colors.orange, size: 16.0),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                child: Text('5.0'),
+              ),
+              Text('| 0 vendidos'),
+            ],
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            '\$ $price',
+            maxLines: 1,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }

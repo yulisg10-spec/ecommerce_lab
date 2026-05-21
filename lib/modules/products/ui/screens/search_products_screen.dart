@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../cart/cart_module.dart';
 import '../../product_module.dart';
 
 class SearchProductsScreen extends ConsumerStatefulWidget {
@@ -66,11 +68,11 @@ class _SearchProductsScreenState extends ConsumerState<SearchProductsScreen> {
                         itemCount: products.length,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
-                              childAspectRatio: 0.9,
-                            ),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.9,
+                        ),
                         itemBuilder: ((BuildContext context, int index) {
                           final ProductEntity product = products[index];
 
@@ -78,6 +80,10 @@ class _SearchProductsScreenState extends ConsumerState<SearchProductsScreen> {
                             name: product.name,
                             price: product.price.toString(),
                             imagePath: product.imagePath,
+                            onTap: () => context.push(
+                              CartRoutes.productDetail,
+                              extra: product,
+                            ),
                           );
                         }),
                       );
