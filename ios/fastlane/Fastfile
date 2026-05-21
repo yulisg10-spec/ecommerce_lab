@@ -82,9 +82,7 @@ platform :ios do
       issuer_id: ENV["IOS_API_KEY_ISSUER_ID"],
       key_filepath: api_key_path,
       duration: 1200,
-      in_house: false,
-      use_portal: true, 
-      use_app_store: true
+      in_house: false
     )
 
     # ─────────────────────────────────────────────────
