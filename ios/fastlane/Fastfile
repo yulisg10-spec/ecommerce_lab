@@ -127,16 +127,11 @@ platform :ios do
       clean: false,
       output_directory: "./build/ios",
       output_name: "Runner.ipa",
-      xcargs: "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='iPhone Distribution' " \
-              "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
-              "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]=EcommerceDemoProfile " \
-              "-allowProvisioningUpdates",
       export_options: {
         method: "app-store",
         signingStyle: "manual",
         provisioningProfiles: {
-          "com.tuempresa.ecommerce_lab" => "EcommerceDemoProfile"
+          "com.example.ecommerce.lab" => "EcommerceDemoProfile"
         }
       }
     )
