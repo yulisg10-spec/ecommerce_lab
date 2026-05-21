@@ -227,26 +227,20 @@ jobs:
       - name: Mostrar log de Xcode si falla
         if: failure()
         run: |
-          echo "=== BUSCANDO LOGS ==="
-          find ~/Library/Logs/gym/ -name "*.log" 2>/dev/null || echo "Directorio gym no existe"
-          
           LOG=$(find ~/Library/Logs/gym/ -name "*.log" 2>/dev/null | head -1)
           if [ -n "$LOG" ]; then
-            echo "=== LOG COMPLETO: $LOG ==="
-            cat "$LOG"
+            echo "=== ÚLTIMAS 100 LÍNEAS DEL LOG ==="
+            tail -100 "$LOG"
           else
-            echo "No se encontró ningún log de gym"
+            echo "No se encontró log"
           fi
       
-          echo "=== CERTIFICADOS EN KEYCHAIN ==="
+          echo "=== CERTIFICADOS ==="
           security find-identity -v -p codesigning || true
       
-          echo "=== PROVISIONING PROFILES INSTALADOS ==="
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ 2>/dev/null || echo "No hay profiles"
-          
-          echo "=== UUID DE CADA PROFILE ==="
+          echo "=== PROVISIONING PROFILES ==="
           for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
-            echo "--- $f ---"
-            security cms -D -i "$f" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1
-            security cms -D -i "$f" 2>/dev/null | grep -A1 "<key>TeamIdentifier</key>" -A2 | tail -1
+            [ -f "$f" ] || continue
+            echo "--- Profile: $f ---"
+            security cms -D -i "$f" 2>/dev/null | grep -A1 "<key>Name</key>" | grep "<string>" | sed 's/.*<string>\(.*\)<\/string>/\1/'
           done
