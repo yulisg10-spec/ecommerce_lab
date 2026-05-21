@@ -126,15 +126,6 @@ jobs:
         # plugins Flutter tienen código nativo iOS que
         # se registra en el Podfile durante este paso.
 
-      - name: Install iOS Dependencies (CocoaPods)
-        run: |
-          cd ios
-          pod install
-        # Descarga las dependencias nativas de iOS
-        # declaradas en el Podfile y genera el
-        # Runner.xcworkspace que Xcode necesita para
-        # compilar. Sin este paso build_app falla.
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
