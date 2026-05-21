@@ -48,7 +48,7 @@ void main() {
       await tester.pumpWidget(buildSubject(product));
       await tester.pump();
 
-      expect(find.text('Carrito de compras'), findsOneWidget);
+      expect(find.text('Detalle del producto'), findsOneWidget);
     });
 
     testWidgets('muestra el botón Agregar al Carrito', (WidgetTester tester) async {
