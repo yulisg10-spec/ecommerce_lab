@@ -109,18 +109,15 @@ platform :ios do
     # cd .. sube un nivel a ecommerce_lab/ donde está
     # el pubspec.yaml que Flutter necesita encontrar.
 
-    # Verificar que las variables de entorno llegaron
-    UI.message("Team ID: #{ENV['IOS_APPLE_TEAM_ID']}")
-    UI.message("Bundle ID: com.example.ecommerce.lab")
-      
-    # Fallar explícitamente si el Team ID está vacío
-    UI.user_error!("IOS_APPLE_TEAM_ID está vacío") if ENV["IOS_APPLE_TEAM_ID"].nil? || ENV["IOS_APPLE_TEAM_ID"].empty?
+    update_project_team(
+      path: "Runner.xcodeproj",
+      teamid: ENV["IOS_APPLE_TEAM_ID"]
+    )
 
     # ─────────────────────────────────────────────────
-    # PASO 6: Configurar firma manual en el proyecto
-    # update_code_signing_settings modifica el .xcodeproj
-    # en tiempo de ejecución — no requiere editar
-    # project.pbxproj manualmente ni pasar xcargs.
+    # PASO 7: Configurar firma manual
+    # Desactiva automatic signing y asigna el profile
+    # solo al target Runner — no toca targets SPM.
     # ─────────────────────────────────────────────────
     update_code_signing_settings(
       use_automatic_signing: false,
@@ -133,16 +130,8 @@ platform :ios do
     )
 
     # ─────────────────────────────────────────────────
-    # PASO 7: Compilar, firmar y exportar el IPA
-    # Por qué workspace y no project:
-    # Flutter genera un .xcworkspace que incluye las
-    # dependencias de CocoaPods. Usar .xcodeproj solo
-    # ignoraría esos plugins nativos y el build fallaría.
-    # clean: false porque flutter build ios del paso
-    # anterior ya preparó el proyecto — si Xcode limpia
-    # de nuevo perdería ese trabajo y el build fallaría.
+    # PASO 8: Compilar, firmar y exportar el IPA
     # ─────────────────────────────────────────────────
-    
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
