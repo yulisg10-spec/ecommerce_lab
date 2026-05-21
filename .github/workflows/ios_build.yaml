@@ -129,24 +129,35 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          ruby-version: '3.4'
+          bundler-cache: false
           working-directory: ios
-        # Fija Ruby 3.3 para garantizar compatibilidad
-        # con Fastlane independientemente de la versión
-        # preinstalada en el runner.
+        # Fija Ruby 3.4 para garantizar compatibilidad con Fastlane.
+        # bundler-cache: false porque el aislamiento lo
+        # maneja BUNDLE_PATH: vendor/bundle en los steps
+        # siguientes. Si bundler-cache fuera true, setup-ruby
+        # intentaría gestionar las gems por su cuenta
+        # mezclándose con BUNDLE_PATH y causando conflictos.
 
-      - name: Instalar dependencias iOS y Fastlane
+      - name: Install CocoaPods and Fastlane
         working-directory: ios
         run: |
           bundle install
           bundle exec pod install --no-repo-update
         # bundle install instala CocoaPods y Fastlane
-        # desde el Gemfile con Ruby 3.3.
+        # desde el Gemfile con Ruby 3.4.
         # bundle exec pod install garantiza que CocoaPods
         # corre bajo el contexto de bundler — misma Ruby,
         # sin conflicto con CocoaPods del sistema.
         # --no-repo-update usa el cache local de specs
         # en lugar de actualizar el índice completo (~5 min).
+        env:
+          BUNDLE_PATH: vendor/bundle
+          # BUNDLE_PATH aísla todas las gems en ios/vendor/bundle
+          # completamente separado de la Ruby de Homebrew en
+          # /opt/homebrew. Las dos Ruby coexisten sin pisarse
+          # porque cada una opera en su propio espacio de gems.
+        
 
       - name: Build and Deploy TestFlight
         run: |
@@ -158,6 +169,12 @@ jobs:
         # ios/fastlane/Fastfile que ejecuta todos los
         # pasos de firma y distribución.
         env:
+          BUNDLE_PATH: vendor/bundle
+          # Mismo BUNDLE_PATH para que bundle exec encuentre
+          # fastlane en la misma carpeta donde se instaló.
+          # Sin esto bundle exec busca en el PATH del sistema
+          # y encuentra la Ruby de Homebrew — conflicto.
+
           # ── Credenciales Apple ──────────────────────
           APPLE_ID: ${{ secrets.APPLE_ID }}
           # Email del Titular — identifica la cuenta Apple
