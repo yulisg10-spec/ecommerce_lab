@@ -1,4 +1,10 @@
 source "https://rubygems.org"
 
+# Fija la versión de Ruby explícitamente
+# Garantiza que bundler, CocoaPods y Fastlane
+# usen exactamente la misma versión en cualquier
+# máquina o runner que ejecute este proyecto
+ruby '3.3.0'
+
 gem "fastlane"
 gem "fastlane-plugin-firebase_app_distribution"
