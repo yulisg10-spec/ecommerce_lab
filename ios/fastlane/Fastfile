@@ -109,6 +109,13 @@ platform :ios do
     # cd .. sube un nivel a ecommerce_lab/ donde está
     # el pubspec.yaml que Flutter necesita encontrar.
 
+    # Verificar que las variables de entorno llegaron
+    UI.message("Team ID: #{ENV['IOS_APPLE_TEAM_ID']}")
+    UI.message("Bundle ID: com.example.ecommerce.lab")
+      
+    # Fallar explícitamente si el Team ID está vacío
+    UI.user_error!("IOS_APPLE_TEAM_ID está vacío") if ENV["IOS_APPLE_TEAM_ID"].nil? || ENV["IOS_APPLE_TEAM_ID"].empty?
+
     # ─────────────────────────────────────────────────
     # PASO 6: Configurar firma manual en el proyecto
     # update_code_signing_settings modifica el .xcodeproj

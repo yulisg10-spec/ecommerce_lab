@@ -227,5 +227,26 @@ jobs:
       - name: Mostrar log de Xcode si falla
         if: failure()
         run: |
-          echo "=== ERRORES DE XCODE ==="
-            grep -A 5 -E "(error:|Error|FAILED|signing|provisioning|certificate)" ~/Library/Logs/gym/Runner-Runner.log | tail -50
+          echo "=== BUSCANDO LOGS ==="
+          find ~/Library/Logs/gym/ -name "*.log" 2>/dev/null || echo "Directorio gym no existe"
+          
+          LOG=$(find ~/Library/Logs/gym/ -name "*.log" 2>/dev/null | head -1)
+          if [ -n "$LOG" ]; then
+            echo "=== LOG COMPLETO: $LOG ==="
+            cat "$LOG"
+          else
+            echo "No se encontró ningún log de gym"
+          fi
+      
+          echo "=== CERTIFICADOS EN KEYCHAIN ==="
+          security find-identity -v -p codesigning || true
+      
+          echo "=== PROVISIONING PROFILES INSTALADOS ==="
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ 2>/dev/null || echo "No hay profiles"
+          
+          echo "=== UUID DE CADA PROFILE ==="
+          for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            echo "--- $f ---"
+            security cms -D -i "$f" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1
+            security cms -D -i "$f" 2>/dev/null | grep -A1 "<key>TeamIdentifier</key>" -A2 | tail -1
+          done
