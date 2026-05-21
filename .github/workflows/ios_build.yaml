@@ -135,24 +135,20 @@ jobs:
         # Runner.xcworkspace que Xcode necesita para
         # compilar. Sin este paso build_app falla.
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: ios
-        # Fija Ruby 3.2 para garantizar compatibilidad
-        # con Fastlane independientemente de la versión
-        # preinstalada en el runner.
-        # bundler-cache: true cachea las gems para
-        # no reinstalar Fastlane en cada ejecución.
 
-      - name: Instalar Fastlane
+      - name: Setup Ruby y Fastlane
+        working-directory: ios
         run: |
-          cd ios
+          gem install bundler
           bundle install
-        # Lee ios/Gemfile e instala fastlane y sus
-        # plugins en el runner.
+        # gem install bundler instala Bundler — el gestor de dependencias
+        # de Ruby equivalente a pub get en Flutter. Es necesario instalarlo
+        # explícitamente porque aunque macos-latest tiene Ruby preinstalado,
+        # la versión de Bundler puede estar desactualizada o ausente.
+        # bundle install lee el ios/Gemfile y descarga fastlane y sus plugins
+        # en el runner. working-directory: ios garantiza que ambos comandos
+        # corren desde la carpeta donde está el Gemfile — sin esto bundle
+        # no encuentra el archivo y falla con "Could not locate Gemfile".
 
       - name: Build y Deploy a TestFlight
         run: |
