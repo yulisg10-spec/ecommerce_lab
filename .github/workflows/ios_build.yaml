@@ -55,19 +55,19 @@ jobs:
         # cache: true guarda el SDK entre ejecuciones
         # para no descargarlo cada vez — ahorra ~2 minutos.
 
-      - name: Instalar dependencias
+      - name: Install Dependencies Flutter
         run: flutter pub get
         # Lee pubspec.yaml y descarga todos los paquetes
         # del proyecto. Sin este paso flutter analyze
         # y flutter test fallan.
 
-      - name: Analizar código
+      - name: Analyze Code
         run: flutter analyze
         # Corre el analizador estático de Dart/Flutter.
         # Si encuentra errores el job falla aquí y el
         # build de iOS nunca se ejecuta.
 
-      - name: Ejecutar tests con coverage
+      - name: Run Flutter Test Coverage
         run: flutter test --coverage
         # Ejecuta todos los tests y genera el reporte
         # de cobertura en coverage/lcov.info que
@@ -96,7 +96,7 @@ jobs:
     needs: quality
 
     steps:
-      - name: Checkout código
+      - name: Checkout Ecommerce_lab
         uses: actions/checkout@v4
         # Clona el repositorio en el runner de macOS.
         # Sin fetch-depth: 0 porque SonarCloud ya corrió
@@ -119,14 +119,14 @@ jobs:
         # Necesario para generar el código nativo de iOS
         # que Xcode luego compila.
 
-      - name: Instalar dependencias Flutter
+      - name: Install Dependencies Flutter
         run: flutter pub get
         # Descarga los paquetes de pubspec.yaml.
         # Debe correr ANTES de pod install porque algunos
         # plugins Flutter tienen código nativo iOS que
         # se registra en el Podfile durante este paso.
 
-      - name: Instalar dependencias iOS (CocoaPods)
+      - name: Install iOS Dependencies (CocoaPods)
         run: |
           cd ios
           pod install
@@ -135,22 +135,26 @@ jobs:
         # Runner.xcworkspace que Xcode necesita para
         # compilar. Sin este paso build_app falla.
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+        # Fija Ruby 3.2 para garantizar compatibilidad
+        # con Fastlane independientemente de la versión
+        # preinstalada en el runner.
+        # bundler-cache: true cachea las gems para
+        # no reinstalar Fastlane en cada ejecución.
 
-      - name: Setup Ruby y Fastlane
-        working-directory: ios
+      - name: Install Fastlane
         run: |
-          gem install bundler
+          cd ios
           bundle install
-        # gem install bundler instala Bundler — el gestor de dependencias
-        # de Ruby equivalente a pub get en Flutter. Es necesario instalarlo
-        # explícitamente porque aunque macos-latest tiene Ruby preinstalado,
-        # la versión de Bundler puede estar desactualizada o ausente.
-        # bundle install lee el ios/Gemfile y descarga fastlane y sus plugins
-        # en el runner. working-directory: ios garantiza que ambos comandos
-        # corren desde la carpeta donde está el Gemfile — sin esto bundle
-        # no encuentra el archivo y falla con "Could not locate Gemfile".
+        # Lee ios/Gemfile e instala fastlane y sus
+        # plugins en el runner.
 
-      - name: Build y Deploy a TestFlight
+      - name: Build and Deploy TestFlight
         run: |
           cd ios
           bundle exec fastlane deploy_testflight
