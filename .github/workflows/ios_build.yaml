@@ -126,6 +126,23 @@ jobs:
         # plugins Flutter tienen código nativo iOS que
         # se registra en el Podfile durante este paso.
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          working-directory: ios
+        # Fija Ruby 3.3 para garantizar compatibilidad
+        # con Fastlane independientemente de la versión
+        # preinstalada en el runner.
+
+      - name: Install Fastlane
+        working-directory: ios
+        run: |
+          gem install bundler
+          bundle install
+        # Con Ruby 3.3 ya activa, Fastlane se instala
+        # con la versión correcta desde el inicio.
+
       - name: Install iOS Dependencies (CocoaPods)
         run: |
           cd ios
@@ -134,25 +151,6 @@ jobs:
         # declaradas en el Podfile y genera el
         # Runner.xcworkspace que Xcode necesita para
         # compilar. Sin este paso build_app falla.
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: ios
-        # Fija Ruby 3.2 para garantizar compatibilidad
-        # con Fastlane independientemente de la versión
-        # preinstalada en el runner.
-        # bundler-cache: true cachea las gems para
-        # no reinstalar Fastlane en cada ejecución.
-
-      - name: Install Fastlane
-        run: |
-          cd ios
-          bundle install
-        # Lee ios/Gemfile e instala fastlane y sus
-        # plugins en el runner.
 
       - name: Build and Deploy TestFlight
         run: |
