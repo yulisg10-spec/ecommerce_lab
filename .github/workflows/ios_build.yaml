@@ -142,6 +142,8 @@ jobs:
       - name: Install CocoaPods and Fastlane
         working-directory: ios
         run: |
+          unset RUBYLIB
+          unset RUBYOPT
           bundle install
           bundle exec pod install --no-repo-update
         # bundle install instala CocoaPods y Fastlane
@@ -168,6 +170,8 @@ jobs:
 
       - name: Build and Deploy TestFlight
         run: |
+          unset RUBYLIB
+          unset RUBYOPT
           cd ios
           bundle exec fastlane deploy_testflight
         # bundle exec garantiza que se usa la versión
@@ -182,7 +186,7 @@ jobs:
           # fastlane en la misma carpeta donde se instaló.
           # Mismo valor para que bundle exec fastlane
           # use exclusivamente vendor/bundle.
-          
+
           # ── Credenciales Apple ──────────────────────
           APPLE_ID: ${{ secrets.APPLE_ID }}
           # Email del Titular — identifica la cuenta Apple
