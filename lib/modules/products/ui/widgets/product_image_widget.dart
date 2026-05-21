@@ -23,7 +23,13 @@ class ProductImageWidget extends StatelessWidget {
       height: height,
       fit: BoxFit.contain,
       placeholder: (BuildContext context, String url) {
-        return const CircularProgressIndicator();
+        return const Center(
+          child: SizedBox(
+            width: 32.0,
+            height: 32.0,
+            child: CircularProgressIndicator(strokeWidth: 2.0),
+          ),
+        );
       },
       errorWidget: (BuildContext context, String url, Object error) {
         return const Icon(Icons.error);

@@ -76,37 +76,42 @@ class ProductsScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24.0,
-                          horizontal: 16.0,
-                        ),
-                        sliver: SliverGrid(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.9,
+                      if (catalog.products.isEmpty)
+                        const SliverFillRemaining(
+                          child: EmptyCategoryWidget(),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 24.0,
+                            horizontal: 16.0,
                           ),
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: catalog.products.length,
-                            (BuildContext context, int index) {
-                              final ProductEntity product =
-                                  catalog.products[index];
+                          sliver: SliverGrid(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.9,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              childCount: catalog.products.length,
+                              (BuildContext context, int index) {
+                                final ProductEntity product =
+                                    catalog.products[index];
 
-                              return CardProductWidget(
-                                name: product.name,
-                                price: product.price.toString(),
-                                imagePath: product.imagePath,
-                                onTap: () => context.push(
-                                    CartRoutes.productDetail,
-                                    extra: product),
-                              );
-                            },
+                                return CardProductWidget(
+                                  name: product.name,
+                                  price: product.price.toString(),
+                                  imagePath: product.imagePath,
+                                  onTap: () => context.push(
+                                      CartRoutes.productDetail,
+                                      extra: product),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   );
                 },
