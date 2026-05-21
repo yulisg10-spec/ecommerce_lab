@@ -119,22 +119,18 @@ platform :ios do
     # anterior ya preparó el proyecto — si Xcode limpia
     # de nuevo perdería ese trabajo y el build fallaría.
     # ─────────────────────────────────────────────────
-
+    
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       configuration: "Release",
-      clean: true,
+      clean: false,
       output_directory: "./build/ios",
       output_name: "Runner.ipa",
-      build_settings: {
-        "CODE_SIGN_STYLE"              => "Manual",
-        "CODE_SIGN_IDENTITY"           => "iPhone Distribution",
-        "DEVELOPMENT_TEAM"             => ENV["IOS_APPLE_TEAM_ID"],
-        "PROVISIONING_PROFILE_SPECIFIER" => "EcommerceDemoProfile",
-      },
-      xcargs: "-allowProvisioningUpdates " \
-              "CLANG_ENABLE_MODULES=YES",
+      xcargs: "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='iPhone Distribution' " \
+              "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
+              "PROVISIONING_PROFILE_SPECIFIER=EcommerceDemoProfile",
       export_options: {
         method: "app-store",
         signingStyle: "manual",
