@@ -223,3 +223,7 @@ jobs:
           # Hash del commit — junto con GITHUB_REF_NAME
           # permite rastrear exactamente qué código
           # contiene cada build en TestFlight
+      
+      - name: Mostrar log de Xcode si falla
+        if: failure()
+        run: cat ~/Library/Logs/gym/Runner-Runner.log
