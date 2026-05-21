@@ -110,7 +110,23 @@ platform :ios do
     # el pubspec.yaml que Flutter necesita encontrar.
 
     # ─────────────────────────────────────────────────
-    # PASO 6: Compilar, firmar y exportar el IPA
+    # PASO 6: Configurar firma manual en el proyecto
+    # update_code_signing_settings modifica el .xcodeproj
+    # en tiempo de ejecución — no requiere editar
+    # project.pbxproj manualmente ni pasar xcargs.
+    # ─────────────────────────────────────────────────
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: ENV["IOS_APPLE_TEAM_ID"],
+      bundle_identifier: "com.example.ecommerce.lab",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
+      profile_name: "EcommerceDemoProfile"
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 7: Compilar, firmar y exportar el IPA
     # Por qué workspace y no project:
     # Flutter genera un .xcworkspace que incluye las
     # dependencias de CocoaPods. Usar .xcodeproj solo
@@ -137,7 +153,7 @@ platform :ios do
     )
 
     # ─────────────────────────────────────────────────
-    # PASO 7: Subir el IPA a TestFlight
+    # PASO 8: Subir el IPA a TestFlight
     # skip_waiting_for_build_processing: true significa
     # que el pipeline termina en cuanto Apple recibe el
     # IPA sin esperar su revisión interna (10-30 min).
@@ -152,7 +168,7 @@ platform :ios do
     )
 
     # ─────────────────────────────────────────────────
-    # PASO 8: Limpiar archivos temporales y keychain
+    # PASO 9: Limpiar archivos temporales y keychain
     # Por qué limpiar explícitamente si el runner
     # se destruye de todas formas: es buena práctica
     # de seguridad — no dejar archivos sensibles en
