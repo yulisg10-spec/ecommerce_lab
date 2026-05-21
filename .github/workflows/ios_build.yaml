@@ -92,7 +92,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────
   ios:
     name: Build & Deploy iOS
-    runs-on: macos-latest
+    runs-on: macos-14
     needs: quality
 
     steps:
@@ -129,9 +129,9 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4'
+          ruby-version: '3.3'
           working-directory: ios
-        # Fija Ruby 3.4 para garantizar 
+        # Fija Ruby 3.3 para garantizar 
         # compatibilidad con Fastlane.
 
       - name: Install CocoaPods and Fastlane
@@ -141,7 +141,7 @@ jobs:
           bundle install
           bundle exec pod install --no-repo-update
         # bundle install instala CocoaPods y Fastlane
-        # desde el Gemfile con Ruby 3.4.
+        # desde el Gemfile con Ruby 3.3.
         # bundle exec pod install garantiza que CocoaPods
         # corre bajo el contexto de bundler — misma Ruby,
         # sin conflicto con CocoaPods del sistema.
