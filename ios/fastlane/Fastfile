@@ -134,11 +134,18 @@ platform :ios do
         # teamID le dice a Xcode qué equipo usar para firmar
         # resuelve el DEVELOPMENT_TEAM vacío que vimos en el log
       },
-      xcargs: "CODE_SIGN_IDENTITY='iPhone Distribution' DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']}",
-      # xcargs sobreescribe directamente las variables de Xcode
-      # CODE_SIGN_IDENTITY='iPhone Distribution' es la identidad
-      # correcta para builds de App Store — no 'iPhone Developer'
-      # que es solo para desarrollo local
+
+      xcargs: "CODE_SIGN_STYLE=Manual " \
+        "CODE_SIGN_IDENTITY='iPhone Distribution' " \
+        "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
+        "PROVISIONING_PROFILE_SPECIFIER='EcommerceDemoProfile'",
+        # xcargs sobreescribe directamente las variables de Xcode
+        # CODE_SIGN_STYLE=Manual desactiva el automatic signing
+        # que es exactamente lo que causaba el conflicto.
+        # Con Manual, Xcode acepta CODE_SIGN_IDENTITY='iPhone Distribution'
+        # sin conflicto porque ya no intenta gestionar la firma solo.
+        # PROVISIONING_PROFILE_SPECIFIER le dice exactamente qué
+        # profile usar — el nombre exacto que vimos en el .mobileprovision
       build_path: "./build",
       output_directory: "./build",
       output_name: "EcommerceLab.ipa",
