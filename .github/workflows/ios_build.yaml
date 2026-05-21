@@ -138,6 +138,15 @@ jobs:
         # bundler-cache: true cachea las gems para
         # no reinstalar Fastlane en cada ejecución.
 
+      - name: Remove Gemfile.lock
+        working-directory: ios
+        run: rm -f Gemfile.lock
+        # rm -f elimina el Gemfile.lock si existe.
+        # -f (force) evita que falle si el archivo no existe.
+        # Esto fuerza a bundler a resolver las gems desde
+        # cero con la versión de Ruby activa en el runner,
+        # evitando conflictos con versiones previas.
+
       - name: Instalar dependencias iOS y Fastlane
         working-directory: ios
         run: |
