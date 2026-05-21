@@ -121,35 +121,27 @@ platform :ios do
     # ─────────────────────────────────────────────────
 
     build_app(
-      workspace: "Runner.xcworkspace",
+      workspace: "ios/Runner.xcworkspace",
       scheme: "Runner",
       configuration: "Release",
-      export_method: "app-store",
-      export_options: {
-        provisioningProfiles: {
-          "com.example.ecommerce.lab" => "EcommerceDemoProfile"
-        },
-        signingStyle: "manual",
-        teamID: ENV["IOS_APPLE_TEAM_ID"],
-        # teamID le dice a Xcode qué equipo usar para firmar
-        # resuelve el DEVELOPMENT_TEAM vacío que vimos en el log
+      clean: true,
+      output_directory: "./build/ios",
+      output_name: "Runner.ipa",
+      build_settings: {
+        "CODE_SIGN_STYLE"              => "Manual",
+        "CODE_SIGN_IDENTITY"           => "iPhone Distribution",
+        "DEVELOPMENT_TEAM"             => ENV["APPLE_TEAM_ID"],
+        "PROVISIONING_PROFILE_SPECIFIER" => "EcommerceDemoProfile",
       },
-
-      xcargs: "CODE_SIGN_STYLE=Manual " \
-        "CODE_SIGN_IDENTITY='iPhone Distribution' " \
-        "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
-        "PROVISIONING_PROFILE_SPECIFIER='EcommerceDemoProfile'",
-        # xcargs sobreescribe directamente las variables de Xcode
-        # CODE_SIGN_STYLE=Manual desactiva el automatic signing
-        # que es exactamente lo que causaba el conflicto.
-        # Con Manual, Xcode acepta CODE_SIGN_IDENTITY='iPhone Distribution'
-        # sin conflicto porque ya no intenta gestionar la firma solo.
-        # PROVISIONING_PROFILE_SPECIFIER aplica el profile
-        # solo a targets que compilan para el SDK de iOS físico (iphoneos).
-      build_path: "./build",
-      output_directory: "./build",
-      output_name: "EcommerceLab.ipa",
-      clean: false
+      xcargs: "-allowProvisioningUpdates " \
+              "CLANG_ENABLE_MODULES=YES",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.tuempresa.ecommerce_lab" => "EcommerceDemoProfile"
+        }
+      }
     )
 
     # ─────────────────────────────────────────────────
