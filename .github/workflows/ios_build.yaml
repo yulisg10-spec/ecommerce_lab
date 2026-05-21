@@ -226,4 +226,6 @@ jobs:
       
       - name: Mostrar log de Xcode si falla
         if: failure()
-        run: cat ~/Library/Logs/gym/Runner-Runner.log
+        run: |
+          echo "=== ERRORES DE XCODE ==="
+            grep -A 5 -E "(error:|Error|FAILED|signing|provisioning|certificate)" ~/Library/Logs/gym/Runner-Runner.log | tail -50
