@@ -119,7 +119,7 @@ platform :ios do
     # anterior ya preparó el proyecto — si Xcode limpia
     # de nuevo perdería ese trabajo y el build fallaría.
     # ─────────────────────────────────────────────────
-
+    
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
@@ -130,11 +130,7 @@ platform :ios do
       xcargs: "CODE_SIGN_STYLE=Manual " \
               "CODE_SIGN_IDENTITY='iPhone Distribution' " \
               "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
-              "PROVISIONING_PROFILE_SPECIFIER=EcommerceDemoProfile"  \
-              # Estas dos líneas son el fix: desactivan firma
-              # en targets que no soportan provisioning profiles
-              "CODE_SIGNING_ALLOWED=NO " \
-              "CODE_SIGNING_REQUIRED=NO",
+              "-allowProvisioningUpdates",
       export_options: {
         method: "app-store",
         signingStyle: "manual",
