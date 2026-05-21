@@ -1,0 +1,225 @@
+name: iOS CI/CD
+
+# ─────────────────────────────────────────────────────────────
+# TRIGGERS — cuándo se ejecuta este workflow
+# el pipeline corre en cada push o PR a develop, 
+# y manualmente via workflow_dispatch.
+# ─────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: QUALITY
+  # Propósito: verificar que el código cumple estándares
+  # antes de intentar compilar para iOS.
+  # Runner: ubuntu-latest porque flutter analyze y flutter test
+  # no necesitan macOS — corren en cualquier SO y ubuntu
+  # es más rápido y consume menos minutos de GitHub Actions
+  # que macos-latest (que cuesta 10x más por minuto).
+  # ─────────────────────────────────────────────────────────────
+  quality:
+    name: Tests & SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        # Clona el repositorio completo en el runner.
+        # fetch-depth: 0 descarga todo el historial de commits
+        # porque SonarCloud lo necesita para distinguir
+        # código nuevo de código existente en el análisis.
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+        # Instala Java 17 en el runner.
+        # SonarCloud Scanner está escrito en Java — sin esto
+        # el último paso del job no puede ejecutarse.
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+        # Instala el SDK de Flutter en el runner.
+        # cache: true guarda el SDK entre ejecuciones
+        # para no descargarlo cada vez — ahorra ~2 minutos.
+
+      - name: Instalar dependencias
+        run: flutter pub get
+        # Lee pubspec.yaml y descarga todos los paquetes
+        # del proyecto. Sin este paso flutter analyze
+        # y flutter test fallan.
+
+      - name: Analizar código
+        run: flutter analyze
+        # Corre el analizador estático de Dart/Flutter.
+        # Si encuentra errores el job falla aquí y el
+        # build de iOS nunca se ejecuta.
+
+      - name: Ejecutar tests con coverage
+        run: flutter test --coverage
+        # Ejecuta todos los tests y genera el reporte
+        # de cobertura en coverage/lcov.info que
+        # SonarCloud necesita para sus métricas.
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Envía el código y reporte de cobertura a
+        # SonarCloud. GITHUB_TOKEN permite publicar
+        # resultados como comentarios en Pull Requests.
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: iOS
+  # Propósito: compilar, firmar y subir el IPA a TestFlight.
+  # Runner: macos-latest es OBLIGATORIO porque Xcode
+  # solo existe en macOS.
+  # needs: quality garantiza que este job solo corre si
+  # el código pasó todos los checks de calidad primero.
+  # ─────────────────────────────────────────────────────────────
+  ios:
+    name: Build & Deploy iOS
+    runs-on: macos-latest
+    needs: quality
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        # Clona el repositorio en el runner de macOS.
+        # Sin fetch-depth: 0 porque SonarCloud ya corrió
+        # en el job anterior — solo necesitamos el código.
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+        # Algunas herramientas internas de Flutter
+        # necesitan JVM incluso compilando para iOS.
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+        # Instala Flutter en el runner de macOS.
+        # Necesario para generar el código nativo de iOS
+        # que Xcode luego compila.
+
+      - name: Instalar dependencias Flutter
+        run: flutter pub get
+        # Descarga los paquetes de pubspec.yaml.
+        # Debe correr ANTES de pod install porque algunos
+        # plugins Flutter tienen código nativo iOS que
+        # se registra en el Podfile durante este paso.
+
+      - name: Instalar dependencias iOS (CocoaPods)
+        run: |
+          cd ios
+          pod install
+        # Descarga las dependencias nativas de iOS
+        # declaradas en el Podfile y genera el
+        # Runner.xcworkspace que Xcode necesita para
+        # compilar. Sin este paso build_app falla.
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+        # Fija Ruby 3.2 para garantizar compatibilidad
+        # con Fastlane independientemente de la versión
+        # preinstalada en el runner.
+        # bundler-cache: true cachea las gems para
+        # no reinstalar Fastlane en cada ejecución.
+
+      - name: Instalar Fastlane
+        run: |
+          cd ios
+          bundle install
+        # Lee ios/Gemfile e instala fastlane y sus
+        # plugins en el runner.
+
+      - name: Build y Deploy a TestFlight
+        run: |
+          cd ios
+          bundle exec fastlane deploy_testflight
+        # bundle exec garantiza que se usa la versión
+        # de Fastlane instalada por bundle install.
+        # deploy_testflight es la lane definida en
+        # ios/fastlane/Fastfile que ejecuta todos los
+        # pasos de firma y distribución.
+        env:
+          # ── Credenciales Apple ──────────────────────
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          # Email del Titular — identifica la cuenta Apple
+
+          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
+          # Team ID del Developer Portal — identifica
+          # el equipo para la firma del certificado
+
+          IOS_ITC_TEAM_ID: ${{ secrets.IOS_ITC_TEAM_ID }}
+          # Team ID de App Store Connect — identifica
+          # el equipo para la subida a TestFlight
+
+          IOS_P12_BASE64: ${{ secrets.IOS_P12_BASE64 }}
+          # Certificado de distribución en Base64 —
+          # Fastlane lo decodifica e instala en el keychain
+
+          IOS_P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+          # Contraseña del .p12 — necesaria para abrir
+          # el certificado e instalarlo en el keychain
+
+          IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+          # Provisioning Profile en Base64 —
+          # Fastlane lo decodifica e instala en el runner
+
+          IOS_API_KEY_BASE64: ${{ secrets.IOS_API_KEY_BASE64 }}
+          # API Key .p8 en Base64 — permite autenticarse
+          # con App Store Connect sin usuario/contraseña
+
+          IOS_API_KEY_ID: ${{ secrets.IOS_API_KEY_ID }}
+          # ID de la API Key — parte de la autenticación
+          # JWT que App Store Connect requiere
+
+          IOS_API_KEY_ISSUER_ID: ${{ secrets.IOS_API_KEY_ISSUER_ID }}
+          # Issuer ID — identifica quién emitió la API Key
+
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          # Contraseña para el keychain temporal del runner
+
+          # ── Credenciales Supabase ───────────────────
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          # URL del proyecto Supabase — se inyecta en el
+          # binario via --dart-define en el Fastfile.
+          # Sin esto la app no sabe a qué servidor conectarse.
+
+          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
+          # Clave anónima de Supabase — se inyecta igual
+          # que SUPABASE_URL. Sin esto todas las llamadas
+          # a Supabase retornan 401 Unauthorized.
+
+          # ── Variables de trazabilidad ───────────────
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          # Nombre de la rama actual — se usa en el
+          # changelog de TestFlight para saber de qué
+          # rama viene el build
+
+          GITHUB_SHA: ${{ github.sha }}
+          # Hash del commit — junto con GITHUB_REF_NAME
+          # permite rastrear exactamente qué código
+          # contiene cada build en TestFlight

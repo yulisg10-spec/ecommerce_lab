@@ -1,0 +1,169 @@
+# Necesario para decodificar los archivos Base64
+require 'base64'
+require 'tmpdir'
+
+default_platform(:ios)
+
+platform :ios do
+
+  desc "Build y subir a TestFlight"
+  lane :deploy_testflight do
+
+    # ─────────────────────────────────────────────────
+    # PASO 1: Crear keychain temporal en el runner
+    # Por qué: macOS requiere un keychain para almacenar
+    # certificados. El runner es una máquina limpia sin
+    # keychain configurado, así que Fastlane crea uno
+    # temporal que se destruye al terminar el pipeline.
+    # ─────────────────────────────────────────────────
+    create_keychain(
+      name: "build_keychain",
+      password: ENV["KEYCHAIN_PASSWORD"],
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 2: Decodificar e instalar el certificado .p12
+    # Por qué decodificar desde Base64: GitHub Secrets
+    # solo acepta texto plano. El .p12 es un archivo
+    # binario, así que lo convertimos a Base64 para
+    # guardarlo como secret y aquí lo revertimos a
+    # su formato binario original para que Fastlane
+    # pueda instalarlo en el keychain.
+    # ─────────────────────────────────────────────────
+    p12_path = "#{Dir.tmpdir}/EcommerceLab.p12"
+    File.write(
+      p12_path,
+      Base64.decode64(ENV["IOS_P12_BASE64"])
+    )
+
+    import_certificate(
+      certificate_path: p12_path,
+      certificate_password: ENV["IOS_P12_PASSWORD"],
+      keychain_name: "build_keychain",
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 3: Decodificar e instalar el Provisioning Profile
+    # Por qué es necesario: el profile le dice a Xcode
+    # qué certificado usar, para qué app y con qué
+    # permisos. Sin él Xcode no sabe cómo firmar el IPA.
+    # ─────────────────────────────────────────────────
+    profile_path = "#{Dir.tmpdir}/EcommerceDemoProfile.mobileprovision"
+    File.write(
+      profile_path,
+      Base64.decode64(ENV["IOS_PROFILE_BASE64"])
+    )
+
+    install_provisioning_profile(
+      path: profile_path
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 4: Configurar App Store Connect API Key
+    # Por qué API Key y no usuario/contraseña:
+    # Apple bloqueó la autenticación interactiva en CI/CD
+    # porque requiere 2FA que no puede automatizarse.
+    # La API Key es el único método oficial y estable
+    # para pipelines automatizados sin intervención humana.
+    # ─────────────────────────────────────────────────
+    api_key_path = "#{Dir.tmpdir}/AuthKey.p8"
+    File.write(
+      api_key_path,
+      Base64.decode64(ENV["IOS_API_KEY_BASE64"])
+    )
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["IOS_API_KEY_ID"],
+      issuer_id: ENV["IOS_API_KEY_ISSUER_ID"],
+      key_filepath: api_key_path,
+      duration: 1200,
+      in_house: false
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 5: Compilar el código Flutter para iOS
+    # Por qué separado del build_app de Fastlane:
+    # Flutter necesita generar el código nativo de iOS
+    # antes de que Xcode pueda compilarlo.
+    # --no-codesign: Flutter genera el código pero NO
+    # firma todavía — la firma la hace Fastlane en el
+    # paso siguiente usando el keychain que configuramos.
+    # --dart-define: inyecta las credenciales de Supabase
+    # en tiempo de compilación — es el mismo mecanismo
+    # que usamos en Android. Sin esto la app compila
+    # pero no puede conectarse a Supabase en runtime.
+    # ─────────────────────────────────────────────────
+    sh(
+      "cd .. && flutter build ios --release --no-codesign " \
+      "--dart-define=SUPABASE_URL=#{ENV['SUPABASE_URL']} " \
+      "--dart-define=SUPABASE_API_KEY=#{ENV['SUPABASE_API_KEY']}"
+    )
+    # Por qué cd ..:
+    # Fastlane corre desde la carpeta ios/ pero flutter
+    # build debe ejecutarse desde la raíz del proyecto.
+    # cd .. sube un nivel a ecommerce_lab/ donde está
+    # el pubspec.yaml que Flutter necesita encontrar.
+
+    # ─────────────────────────────────────────────────
+    # PASO 6: Compilar, firmar y exportar el IPA
+    # Por qué workspace y no project:
+    # Flutter genera un .xcworkspace que incluye las
+    # dependencias de CocoaPods. Usar .xcodeproj solo
+    # ignoraría esos plugins nativos y el build fallaría.
+    # clean: false porque flutter build ios del paso
+    # anterior ya preparó el proyecto — si Xcode limpia
+    # de nuevo perdería ese trabajo y el build fallaría.
+    # ─────────────────────────────────────────────────
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "com.example.ecommerce.lab" => "EcommerceDemoProfile"
+        }
+      },
+      build_path: "./build",
+      output_directory: "./build",
+      output_name: "EcommerceLab.ipa",
+      clean: false
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 7: Subir el IPA a TestFlight
+    # skip_waiting_for_build_processing: true significa
+    # que el pipeline termina en cuanto Apple recibe el
+    # IPA sin esperar su revisión interna (10-30 min).
+    # El build aparecerá en TestFlight automáticamente
+    # cuando Apple termine de procesarlo.
+    # ─────────────────────────────────────────────────
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: "./build/EcommerceLab.ipa",
+      skip_waiting_for_build_processing: true,
+      changelog: "Build automático iOS — #{ENV['GITHUB_REF_NAME']} — #{ENV['GITHUB_SHA']}"
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 8: Limpiar archivos temporales y keychain
+    # Por qué limpiar explícitamente si el runner
+    # se destruye de todas formas: es buena práctica
+    # de seguridad — no dejar archivos sensibles en
+    # disco más tiempo del necesario, aunque sea
+    # en una máquina efímera.
+    # ─────────────────────────────────────────────────
+    File.delete(p12_path) if File.exist?(p12_path)
+    File.delete(profile_path) if File.exist?(profile_path)
+    File.delete(api_key_path) if File.exist?(api_key_path)
+
+    delete_keychain(name: "build_keychain")
+
+  end
+
+end

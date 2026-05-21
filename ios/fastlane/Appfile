@@ -1,0 +1,8 @@
+app_identifier("com.example.ecommerce.lab")
+
+# Estas variables vienen de los secrets de GitHub Actions, 
+# que a su vez se  se configuran a partir de los secretos
+# definidos en Fastlane y App Store Connect.
+apple_id(ENV["APPLE_ID"])
+itc_team_id(ENV["IOS_ITC_TEAM_ID"])
+team_id(ENV["IOS_APPLE_TEAM_ID"])
