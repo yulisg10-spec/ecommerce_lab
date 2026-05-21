@@ -137,12 +137,13 @@ platform :ios do
 
       xcargs: "CODE_SIGN_STYLE=Manual " \
         "CODE_SIGN_IDENTITY='iPhone Distribution' " \
-        "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} " \
+        "DEVELOPMENT_TEAM=#{ENV['IOS_APPLE_TEAM_ID']} ",
         # xcargs sobreescribe directamente las variables de Xcode
         # CODE_SIGN_STYLE=Manual desactiva el automatic signing
         # que es exactamente lo que causaba el conflicto.
         # Con Manual, Xcode acepta CODE_SIGN_IDENTITY='iPhone Distribution'
         # sin conflicto porque ya no intenta gestionar la firma solo.
+
       build_path: "./build",
       output_directory: "./build",
       output_name: "EcommerceLab.ipa",
