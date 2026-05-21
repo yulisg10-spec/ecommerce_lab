@@ -85,10 +85,10 @@ jobs:
   # ─────────────────────────────────────────────────────────────
   # JOB 2: iOS
   # Propósito: compilar, firmar y subir el IPA a TestFlight.
-  # Runner: macos-latest es OBLIGATORIO porque Xcode
-  # solo existe en macOS.
-  # needs: quality garantiza que este job solo corre si
-  # el código pasó todos los checks de calidad primero.
+  # Runner: macos-14 porque Xcode solo existe en macOS.
+  # Usamos macos-14 en lugar de macos-latest para evitar
+  # el conflicto entre la Ruby de Homebrew y setup-ruby
+  # que existe en macos-15 (macos-latest actual).
   # ─────────────────────────────────────────────────────────────
   ios:
     name: Build & Deploy iOS
@@ -137,6 +137,8 @@ jobs:
       - name: Install CocoaPods and Fastlane
         working-directory: ios
         run: |
+          rm -f Gemfile.lock
+          gem install bundler --no-document
           bundle config set --local path vendor/bundle
           bundle install
           bundle exec pod install --no-repo-update
@@ -149,9 +151,13 @@ jobs:
         # en lugar de actualizar el índice completo (~5 min).
 
       - name: Build and Deploy TestFlight
-        run: |
-          cd ios
-          bundle exec fastlane deploy_testflight
+        working-directory: ios
+        # working-directory: ios es crítico aquí —
+        # bundle exec lee ios/.bundle/config para saber
+        # dónde están las gems en vendor/bundle.
+        # Sin esto bundle exec busca en el directorio
+        # raíz donde no existe .bundle/config y falla.
+        run: bundle exec fastlane deploy_testflight
         # bundle exec garantiza que se usa la versión
         # de Fastlane instalada por bundle install.
         # deploy_testflight es la lane definida en
