@@ -105,34 +105,9 @@ platform :ios do
       profile_name: "EcommerceDemoProfile"
     )
 
-    # ─────────────────────────────────────────────────
-    # PASO 6: Compilar el código Flutter para iOS
-    # Por qué separado del build_app de Fastlane:
-    # Flutter necesita generar el código nativo de iOS
-    # antes de que Xcode pueda compilarlo.
-    # --no-codesign: Flutter genera el código pero NO
-    # firma todavía — la firma la hace Fastlane en el
-    # paso siguiente usando el keychain que configuramos.
-    # --dart-define: inyecta las credenciales de Supabase
-    # en tiempo de compilación — es el mismo mecanismo
-    # que usamos en Android. Sin esto la app compila
-    # pero no puede conectarse a Supabase en runtime.
-    # ─────────────────────────────────────────────────
-    sh(
-      "cd .. && flutter build ios --config-only --release " \
-      "--dart-define=SUPABASE_URL=#{ENV['SUPABASE_URL']} " \
-      "--dart-define=SUPABASE_API_KEY=#{ENV['SUPABASE_API_KEY']}"
-    )
-    # Por qué cd ..:
-    # Fastlane corre desde la carpeta ios/ pero flutter
-    # build debe ejecutarse desde la raíz del proyecto.
-    # cd .. sube un nivel a ecommerce_lab/ donde está
-    # el pubspec.yaml que Flutter necesita encontrar.
-
-
 
     # ─────────────────────────────────────────────────
-    # PASO 7: Compilar, firmar y exportar el IPA
+    # PASO 6: Compilar, firmar y exportar el IPA
     # ─────────────────────────────────────────────────
     build_app(
       workspace: "Runner.xcworkspace",
@@ -151,7 +126,7 @@ platform :ios do
     )
 
     # ─────────────────────────────────────────────────
-    # PASO 8: Subir el IPA a TestFlight
+    # PASO 7: Subir el IPA a TestFlight
     # skip_waiting_for_build_processing: true significa
     # que el pipeline termina en cuanto Apple recibe el
     # IPA sin esperar su revisión interna (10-30 min).
@@ -166,7 +141,7 @@ platform :ios do
     )
 
     # ─────────────────────────────────────────────────
-    # PASO 9: Limpiar archivos temporales y keychain
+    # PASO 8: Limpiar archivos temporales y keychain
     # Por qué limpiar explícitamente si el runner
     # se destruye de todas formas: es buena práctica
     # de seguridad — no dejar archivos sensibles en

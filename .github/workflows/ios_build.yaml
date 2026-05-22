@@ -156,6 +156,12 @@ jobs:
         # --no-repo-update usa el cache local de specs
         # en lugar de actualizar el índice completo (~5 min).
 
+      - name: Flutter Build iOS
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
+      
       - name: Build and Deploy TestFlight
         working-directory: ios
         # working-directory: ios es crítico aquí —
