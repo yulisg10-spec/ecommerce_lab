@@ -156,6 +156,25 @@ jobs:
         # --no-repo-update usa el cache local de specs
         # en lugar de actualizar el índice completo (~5 min).
 
+      - name: Inject DEVELOPMENT_TEAM into project.pbxproj
+        working-directory: ios
+        run: |
+          sed -i '' \
+            "s/DEVELOPMENT_TEAM = \"\"/DEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID/g" \
+            Runner.xcodeproj/project.pbxproj
+          sed -i '' \
+            "s/DEVELOPMENT_TEAM = ;/DEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
+            Runner.xcodeproj/project.pbxproj
+          echo "=== Resultado ==="
+          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj
+        env:
+          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
+        # Por qué este paso: Xcode necesita el Team ID para
+        # compilar y firmar el IPA. Al inyectarlo directamente
+        # en project.pbxproj evitamos tener que configurar
+        # manualmente el team en Xcode, lo que hace el proceso
+        # completamente automático.
+
       - name: Flutter Build iOS
         run: |
           flutter build ios --release --no-codesign \
