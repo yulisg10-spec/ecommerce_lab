@@ -119,17 +119,6 @@ jobs:
         # Necesario para generar el código nativo de iOS
         # que Xcode luego compila.
 
-      - name: Inject DEVELOPMENT_TEAM into project.pbxproj
-        working-directory: ios
-        run: |
-          sed -i '' \
-            "s/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;\n\t\t\t\tDEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
-            Runner.xcodeproj/project.pbxproj
-          echo "=== DEVELOPMENT_TEAM inyectado ==="
-          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
-        env:
-          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
-
       - name: Install Dependencies Flutter
         run: flutter pub get
         # Descarga los paquetes de pubspec.yaml.
@@ -172,8 +161,6 @@ jobs:
           flutter build ios --release --no-codesign \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
-        env:
-          FLUTTER_XCODE_DEVELOPMENT_TEAM: ${{ secrets.IOS_APPLE_TEAM_ID }}
       
       - name: Build and Deploy TestFlight
         working-directory: ios
