@@ -159,14 +159,12 @@ jobs:
       - name: Inject DEVELOPMENT_TEAM into project.pbxproj
         working-directory: ios
         run: |
+          # Insertar DEVELOPMENT_TEAM después de cada PRODUCT_BUNDLE_IDENTIFIER del target Runner
           sed -i '' \
-            "s/DEVELOPMENT_TEAM = \"\"/DEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID/g" \
-            Runner.xcodeproj/project.pbxproj
-          sed -i '' \
-            "s/DEVELOPMENT_TEAM = ;/DEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
+            "s/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;\n\t\t\t\tDEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
             Runner.xcodeproj/project.pbxproj
           echo "=== Resultado ==="
-          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj
+          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No se encontró DEVELOPMENT_TEAM"
         env:
           IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
         # Por qué este paso: Xcode necesita el Team ID para
