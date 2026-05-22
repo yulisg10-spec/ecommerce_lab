@@ -156,32 +156,13 @@ jobs:
         # --no-repo-update usa el cache local de specs
         # en lugar de actualizar el índice completo (~5 min).
 
-      - name: Inject DEVELOPMENT_TEAM into project.pbxproj
-        working-directory: ios
-        run: |
-          # Insertar DEVELOPMENT_TEAM después de cada PRODUCT_BUNDLE_IDENTIFIER del target Runner
-          sed -i '' \
-            "s/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;\n\t\t\t\tDEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
-            Runner.xcodeproj/project.pbxproj
-          echo "=== Resultado ==="
-          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No se encontró DEVELOPMENT_TEAM"
-          echo "=== Líneas con DEVELOPMENT_TEAM ==="
-          grep -n "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
-          echo "=== Líneas con BUNDLE_IDENTIFIER ==="
-          grep -n "PRODUCT_BUNDLE_IDENTIFIER" Runner.xcodeproj/project.pbxproj
-        env:
-          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
-        # Por qué este paso: Xcode necesita el Team ID para
-        # compilar y firmar el IPA. Al inyectarlo directamente
-        # en project.pbxproj evitamos tener que configurar
-        # manualmente el team en Xcode, lo que hace el proceso
-        # completamente automático.
-
       - name: Flutter Build iOS
         run: |
           flutter build ios --release --no-codesign \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
+        env:
+          FLUTTER_XCODE_DEVELOPMENT_TEAM: ${{ secrets.IOS_APPLE_TEAM_ID }}
       
       - name: Build and Deploy TestFlight
         working-directory: ios
