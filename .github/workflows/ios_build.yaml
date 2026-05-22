@@ -119,6 +119,17 @@ jobs:
         # Necesario para generar el código nativo de iOS
         # que Xcode luego compila.
 
+      - name: Inject DEVELOPMENT_TEAM into project.pbxproj
+        working-directory: ios
+        run: |
+          sed -i '' \
+            "s/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;\n\t\t\t\tDEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
+            Runner.xcodeproj/project.pbxproj
+          echo "=== DEVELOPMENT_TEAM inyectado ==="
+          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
+        env:
+          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
+
       - name: Install Dependencies Flutter
         run: flutter pub get
         # Descarga los paquetes de pubspec.yaml.
@@ -155,25 +166,6 @@ jobs:
         # sin conflicto con CocoaPods del sistema.
         # --no-repo-update usa el cache local de specs
         # en lugar de actualizar el índice completo (~5 min).
-
-      - name: Inject DEVELOPMENT_TEAM into project.pbxproj
-        working-directory: ios
-        run: |
-          sed -i '' \
-            "s/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;/PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab;\n\t\t\t\tDEVELOPMENT_TEAM = $IOS_APPLE_TEAM_ID;/g" \
-            Runner.xcodeproj/project.pbxproj
-      
-          echo "=== Bloques con BUNDLE_IDENTIFIER y DEVELOPMENT_TEAM ==="
-          grep -A2 "PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce.lab" \
-            Runner.xcodeproj/project.pbxproj
-      
-          echo "=== CODE_SIGN_STYLE en el proyecto ==="
-          grep "CODE_SIGN_STYLE" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
-      
-          echo "=== DEVELOPMENT_TEAM en el proyecto ==="
-          grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
-        env:
-          IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
 
       - name: Flutter Build iOS
         run: |
