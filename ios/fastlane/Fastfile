@@ -85,8 +85,28 @@ platform :ios do
       in_house: false
     )
 
+    update_project_team(
+      path: "Runner.xcodeproj",
+      teamid: ENV["IOS_APPLE_TEAM_ID"]
+    )
+
     # ─────────────────────────────────────────────────
-    # PASO 5: Compilar el código Flutter para iOS
+    # PASO 5: Configurar firma manual
+    # Desactiva automatic signing y asigna el profile
+    # solo al target Runner — no toca targets SPM.
+    # ─────────────────────────────────────────────────
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: ENV["IOS_APPLE_TEAM_ID"],
+      bundle_identifier: "com.example.ecommerce.lab",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
+      profile_name: "EcommerceDemoProfile"
+    )
+
+    # ─────────────────────────────────────────────────
+    # PASO 6: Compilar el código Flutter para iOS
     # Por qué separado del build_app de Fastlane:
     # Flutter necesita generar el código nativo de iOS
     # antes de que Xcode pueda compilarlo.
@@ -109,28 +129,10 @@ platform :ios do
     # cd .. sube un nivel a ecommerce_lab/ donde está
     # el pubspec.yaml que Flutter necesita encontrar.
 
-    update_project_team(
-      path: "Runner.xcodeproj",
-      teamid: ENV["IOS_APPLE_TEAM_ID"]
-    )
+
 
     # ─────────────────────────────────────────────────
-    # PASO 7: Configurar firma manual
-    # Desactiva automatic signing y asigna el profile
-    # solo al target Runner — no toca targets SPM.
-    # ─────────────────────────────────────────────────
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "Runner.xcodeproj",
-      team_id: ENV["IOS_APPLE_TEAM_ID"],
-      bundle_identifier: "com.example.ecommerce.lab",
-      code_sign_identity: "iPhone Distribution",
-      sdk: "iphoneos*",
-      profile_name: "EcommerceDemoProfile"
-    )
-
-    # ─────────────────────────────────────────────────
-    # PASO 8: Compilar, firmar y exportar el IPA
+    # PASO 7: Compilar, firmar y exportar el IPA
     # ─────────────────────────────────────────────────
     build_app(
       workspace: "Runner.xcworkspace",
