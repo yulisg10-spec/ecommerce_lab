@@ -165,6 +165,10 @@ jobs:
             Runner.xcodeproj/project.pbxproj
           echo "=== Resultado ==="
           grep "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No se encontró DEVELOPMENT_TEAM"
+          echo "=== Líneas con DEVELOPMENT_TEAM ==="
+          grep -n "DEVELOPMENT_TEAM" Runner.xcodeproj/project.pbxproj || echo "No encontrado"
+          echo "=== Líneas con BUNDLE_IDENTIFIER ==="
+          grep -n "PRODUCT_BUNDLE_IDENTIFIER" Runner.xcodeproj/project.pbxproj
         env:
           IOS_APPLE_TEAM_ID: ${{ secrets.IOS_APPLE_TEAM_ID }}
         # Por qué este paso: Xcode necesita el Team ID para
