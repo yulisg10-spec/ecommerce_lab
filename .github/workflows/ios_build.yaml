@@ -92,7 +92,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────
   ios:
     name: Build & Deploy iOS
-    runs-on: macos-14
+    runs-on: macos-15
     needs: quality
 
     steps:
@@ -125,6 +125,12 @@ jobs:
         # Debe correr ANTES de pod install porque algunos
         # plugins Flutter tienen código nativo iOS que
         # se registra en el Podfile durante este paso.
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        # Asegura que el runner usa Xcode 16.2, que es
+        # compatible con iOS 17 y las últimas herramientas
+        # de firma y distribución.
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
