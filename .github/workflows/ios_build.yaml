@@ -132,6 +132,9 @@ jobs:
         # compatible con iOS 17 y las últimas herramientas
         # de firma y distribución.
 
+      - name: Download iOS Platform
+        run: xcodebuild -downloadPlatform iOS
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
