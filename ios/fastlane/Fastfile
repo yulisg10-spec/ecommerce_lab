@@ -119,7 +119,7 @@ platform :ios do
     # pero no puede conectarse a Supabase en runtime.
     # ─────────────────────────────────────────────────
     sh(
-      "cd .. && flutter build ios --release --no-codesign " \
+      "cd .. && flutter build ios --config-only --release " \
       "--dart-define=SUPABASE_URL=#{ENV['SUPABASE_URL']} " \
       "--dart-define=SUPABASE_API_KEY=#{ENV['SUPABASE_API_KEY']}"
     )
