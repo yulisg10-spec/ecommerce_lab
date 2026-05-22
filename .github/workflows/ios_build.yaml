@@ -85,14 +85,14 @@ jobs:
   # ─────────────────────────────────────────────────────────────
   # JOB 2: iOS
   # Propósito: compilar, firmar y subir el IPA a TestFlight.
-  # Runner: macos-14 porque Xcode solo existe en macOS.
-  # Usamos macos-14 en lugar de macos-latest para evitar
+  # Runner: macos-26 porque Xcode solo existe en macOS.
+  # Usamos macos-26 en lugar de macos-latest para evitar
   # el conflicto entre la Ruby de Homebrew y setup-ruby
-  # que existe en macos-15 (macos-latest actual).
+  # que existe en macos-26 (macos-latest actual).
   # ─────────────────────────────────────────────────────────────
   ios:
     name: Build & Deploy iOS
-    runs-on: macos-15
+    runs-on: macos-26
     needs: quality
 
     steps:
@@ -126,17 +126,11 @@ jobs:
         # plugins Flutter tienen código nativo iOS que
         # se registra en el Podfile durante este paso.
 
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Select Xcode 26
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
         # Asegura que el runner usa Xcode 16.2, que es
         # compatible con iOS 17 y las últimas herramientas
         # de firma y distribución.
-
-      - name: Download iOS Platform
-        run: xcodebuild -downloadPlatform iOS
-        # Fix para el bug en macos-15 runners donde ibtool
-        # falla con "iOS Platform Not Installed" al compilar
-        # storyboards a pesar de que el SDK está instalado.
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
