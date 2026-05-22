@@ -132,6 +132,12 @@ jobs:
         # compatible con iOS 17 y las últimas herramientas
         # de firma y distribución.
 
+      - name: Download iOS Platform
+        run: xcodebuild -downloadPlatform iOS
+        # Fix para el bug en macos-15 runners donde ibtool
+        # falla con "iOS Platform Not Installed" al compilar
+        # storyboards a pesar de que el SDK está instalado.
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
